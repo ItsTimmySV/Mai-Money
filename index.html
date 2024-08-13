@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Control de Ingresos y Gastos</title>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="styles.css">
+        <!-- Actualiza la versión de Chart.js y deshabilita el mapa de fuentes -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    </head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Control de Ingresos y Gastos</h1>
+            <nav>
+                <button id="showTransactionsBtn" class="active">Transacciones</button>
+                <button id="showStatsBtn">Estadísticas</button>
+            </nav>
+        </header>
+
+        <main>
+            <section id="transactionsView" class="section">
+                <div class="summary">
+                    <div class="balance">
+                        <h2>Balance</h2>
+                        <p id="total">$0.00</p>
+                    </div>
+                    <div class="income">
+                        <h3>Ingresos</h3>
+                        <p id="income-total">$0.00</p>
+                    </div>
+                    <div class="expense">
+                        <h3>Gastos</h3>
+                        <p id="expense-total">$0.00</p>
+                    </div>
+                </div>
+
+                <div class="transaction-list">
+                    <h2>Transacciones</h2>
+                    <ul id="transactions"></ul>
+                </div>
+            </section>
+
+            <section id="statsView" class="section" style="display:none;">
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <h2>Ingresos y Gastos por Mes</h2>
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <h2>Ingresos y Gastos por Año</h2>
+                        <canvas id="yearlyChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <button id="addTransactionBtn" class="float-btn">+</button>
+    </div>
+
+    <div id="addTransactionModal" class="modal">
+        <div class="modal-content">
+            <h2>Agregar Transacción</h2>
+            <form id="addTransactionForm">
+                <input type="text" id="description" placeholder="Descripción" required>
+                <input type="number" id="amount" placeholder="Monto" step="0.01" required>
+                <input type="date" id="date" required>
+                <select id="type" required>
+                    <option value="income">Ingreso</option>
+                    <option value="expense">Gasto</option>
+                </select>
+                <button type="submit">Agregar</button>
+                <button type="button" id="cancelAddBtn">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2>Editar Transacción</h2>
+            <form id="editTransactionForm">
+                <input type="text" id="editDescription" placeholder="Descripción" required>
+                <input type="number" id="editAmount" placeholder="Monto" step="0.01" required>
+                <input type="date" id="editDate" required>
+                <select id="editType" required>
+                    <option value="income">Ingreso</option>
+                    <option value="expense">Gasto</option>
+                </select>
+                <button type="submit">Actualizar</button>
+                <button type="button" id="cancelEditBtn">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="javascripts.js"></script>
+</body>
+</html>
