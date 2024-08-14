@@ -285,8 +285,8 @@ function showStats() {
         // Volver a crear los gráficos
         createChart('monthlyChart', 'Ingresos y Gastos por Mes', getMonthlyData(), 'monthly');
         createChart('yearlyChart', 'Ingresos y Gastos por Año', getYearlyData(), 'yearly');
-        createCategoryChart(); // Actualiza o crea el gráfico de categorías
-    }, 1000); // 1 segundo de retraso, ajusta según sea necesario
+        createCategoryChart('hola'); // Actualiza o crea el gráfico de categorías
+    }, 10); // 1 segundo de retraso, ajusta según sea necesario
 }
 
 // Crear o actualizar el gráfico de categorías
