@@ -8,6 +8,16 @@
     --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Modo oscuro */
+.dark-mode {
+    --primary-color: #66bb6a;
+    --secondary-color: #ff5252;
+    --background-color: #121212;
+    --card-background: #1e1e1e;
+    --text-color: #ffffff;
+    --box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -324,4 +334,61 @@ li:hover {
     margin-bottom: 5px; /* Espacio más pequeño debajo del título */
     letter-spacing: 1px; /* Espaciado entre letras más sutil */
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Sombra más ligera */
+}
+
+/* Estilos para el botón de cambio de modo */
+.mode-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--card-background);
+    color: var(--text-color);
+    border: none;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.mode-toggle:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Ajustes adicionales para el modo oscuro */
+.dark-mode .transaction-item:hover {
+    background-color: #2a2a2a;
+}
+
+.dark-mode .edit-btn {
+    background-color: #66bb6a;
+}
+
+.dark-mode .delete-btn {
+    background-color: #ff5252;
+}
+
+.loading-animation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px; /* Ajusta según sea necesario */
+    font-size: 1.2em;
+    color: var(--text-color);
+}
+
+.loading-animation::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--text-color);
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    margin-left: 10px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
