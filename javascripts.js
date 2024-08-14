@@ -75,6 +75,7 @@ function handleAddTransaction(e) {
         updateUI();
         closeAddTransactionModal();
         showTransactions();
+        clearForm(); // Llamar a clearForm después de agregar la transacción
     }
 }
 
@@ -83,21 +84,31 @@ function handleAddTransaction(e) {
 function handleEditTransaction(e) {
     e.preventDefault();
     const amount = parseFloat(document.getElementById('editAmount').value);
-    const date = document.getElementById('editDate').value;
+    const dateInput = document.getElementById('editDate').value;
     const type = document.getElementById('editType').value;
     const category = document.getElementById('editCategory').value;
     const comment = document.getElementById('editComment').value;
 
-    if (amount && date && category) {
+    if (amount && dateInput && category) {
+        const date = new Date(dateInput + 'T00:00:00'); // Asegúrate de que la fecha esté en formato UTC
+
         const index = transactions.findIndex(t => t.id === editingId);
         if (index !== -1) {
-            transactions[index] = { ...transactions[index], amount, date, type, category, comment };
+            transactions[index] = { 
+                ...transactions[index], 
+                amount, 
+                date: date.toISOString(), // Asegúrate de que la fecha esté en formato UTC
+                type, 
+                category, 
+                comment 
+            };
             saveTransactions();
             updateUI();
             closeEditModal();
         }
     }
 }
+
 // Update UI with current transactions
 function updateUI() {
     const transactionList = document.getElementById('transactions');
@@ -162,14 +173,15 @@ function updateUI() {
     if (balanceElement) balanceElement.textContent = `$${balance.toFixed(2)}`;
 }
 
-// Initialize the application
+// Asegurarse de que initApp llama a clearForm
 function initApp() {
     loadTransactions();
     updateUI();
     showTransactions();
+    clearForm(); // Esto establecerá la fecha de hoy en el formulario al cargar la aplicación
 }
 
-// Call initApp when the DOM is fully loaded
+// Llamar a initApp cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', initApp);
 
 
@@ -185,28 +197,25 @@ function editTransaction(id) {
     const transaction = transactions.find(t => t.id === id);
     if (transaction) {
         editingId = id;
-        document.getElementById('editDescription').value = transaction.description;
         document.getElementById('editAmount').value = transaction.amount;
         document.getElementById('editDate').value = transaction.date.split('T')[0];
         document.getElementById('editType').value = transaction.type;
         document.getElementById('editCategory').value = transaction.category;
-        editModal.style.display = 'block';
+        document.getElementById('editComment').value = transaction.comment || '';
+        document.getElementById('editModal').style.display = 'block';
     }
 }
-
 // Close the edit modal
 function closeEditModal() {
     editModal.style.display = 'none';
     editingId = null;
 }
 
-// Open the add transaction modal
+
+// Asegurarse de que la fecha se establece correctamente al abrir el modal de agregar transacción
 function openAddTransactionModal() {
     addTransactionModal.style.display = 'block';
-
-    // Get today's date in the format 'yyyy-mm-dd'
-    const today = new Date().toLocaleDateString('en-CA'); // Formato 'yyyy-mm-dd'
-    document.getElementById('date').value = today;
+    clearForm(); // Esto establecerá la fecha de hoy y limpiará los otros campos
 }
 
 
@@ -432,13 +441,19 @@ function createChart(canvasId, title, data, chartType) {
 
 
 
-// Clear the form inputs
+
+// Función para limpiar el formulario después de agregar una transacción
 function clearForm() {
-    document.getElementById('description').value = '';
     document.getElementById('amount').value = '';
-    document.getElementById('date').valueAsDate = new Date();
+    document.getElementById('category').value = '';
     document.getElementById('type').value = 'income';
+    document.getElementById('comment').value = '';
+    
+    // Establecer la fecha de hoy
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
 }
+
 
 
 // Format date to a more readable format with full date, using the local format of El Salvador
