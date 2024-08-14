@@ -143,19 +143,30 @@ li:hover {
 }
 
 .transaction-amount {
-    font-weight: bold;
-    margin-right: 10px;
+    flex: 1;
 }
 
 .transaction-actions {
-    display: none;
-    gap: 10px;
+    display: none; /* Oculta los botones por defecto */
 }
 
 
 .transaction-date {
     font-size: 0.9em;
     color: #777;
+}
+
+.transaction-actions.show {
+    display: flex; /* Muestra los botones cuando se agrega la clase 'show' */
+}
+
+.transaction-amount.hidden {
+    display: none; /* Oculta el monto cuando se agrega la clase 'hidden' */
+}
+
+.transaction-details {
+    display: flex;
+    align-items: center;
 }
 
 .edit-btn, .delete-btn {
