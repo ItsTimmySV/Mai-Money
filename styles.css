@@ -150,7 +150,10 @@ li:hover {
 
 .transaction-info small {
     color: #777;
+    display: block;
+    margin-top: 5px;
 }
+
 
 .transaction-amount {
     flex: 1;
@@ -305,6 +308,28 @@ li:hover {
 
     .modal-content {
         width: 95%;
+        padding: 15px;
+    }
+
+    .add-category-form {
+        flex-direction: column;
+    }
+
+    .add-category-form input,
+    .add-category-form button {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .category-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .category-item button {
+        margin-top: 10px;
+        align-self: flex-end;
     }
 }
 
@@ -412,4 +437,94 @@ li:hover {
 
 .dark-mode .mode-icon {
     background-color: var(--text-color);
+}
+
+.modal-content select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    background-color: var(--card-background);
+    color: var(--text-color);
+}
+
+.modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    resize: vertical;
+    min-height: 100px;
+}
+
+.category-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s ease;
+}
+
+.category-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.category-item span {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.category-item button {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.category-item button:hover {
+    background-color: #d32f2f;
+}
+
+.add-category-form {
+    display: flex;
+    margin-top: 20px;
+}
+
+.add-category-form input {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+#closeCategoryManagementBtn {
+    margin-top: 20px;
+    width: 100%;
+}
+
+#manageCategoriesBtn {
+    bottom: 100px;
+    right: 40px;
+}
+
+#addCategoryForm {
+    display: flex;
+    margin-top: 20px;
+}
+
+#newCategoryName {
+    flex-grow: 1;
+    margin-right: 10px;
 }
