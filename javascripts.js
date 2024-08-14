@@ -2,6 +2,9 @@ let transactions = [];
 let editingId = null;
 let monthlyChartInstance = null;
 let yearlyChartInstance = null;
+let categoryChartInstance = null;
+let categories = ['Comida', 'Transporte', 'Entretenimiento', 'Servicios', 'Otros'];
+
 
 // DOM Elements
 const transactionsView = document.getElementById('transactionsView');
@@ -16,7 +19,10 @@ const editTransactionForm = document.getElementById('editTransactionForm');
 const cancelAddBtn = document.getElementById('cancelAddBtn');
 const cancelEditBtn = document.getElementById('cancelEditBtn');
 
+
+
 // Event Listeners
+document.getElementById('addCategoryForm').addEventListener('submit', addCategory);
 showTransactionsBtn.addEventListener('click', showTransactions);
 showStatsBtn.addEventListener('click', showStats);
 addTransactionBtn.addEventListener('click', openAddTransactionModal);
@@ -25,13 +31,16 @@ cancelEditBtn.addEventListener('click', closeEditModal);
 addTransactionForm.addEventListener('submit', handleAddTransaction);
 editTransactionForm.addEventListener('submit', handleEditTransaction);
 
-// Load transactions from local storage
+
+
+// Funciones de carga y guardado
 function loadTransactions() {
     const savedTransactions = localStorage.getItem('transactions');
     if (savedTransactions) {
         transactions = JSON.parse(savedTransactions);
     }
 }
+
 
 
 // Save transactions to local storage
@@ -43,52 +52,52 @@ function saveTransactions() {
 // Handle adding a new transaction
 function handleAddTransaction(e) {
     e.preventDefault();
-    const description = document.getElementById('description').value;
     const amount = parseFloat(document.getElementById('amount').value);
     const dateInput = document.getElementById('date').value;
     const type = document.getElementById('type').value;
+    const category = document.getElementById('category').value;
+    const comment = document.getElementById('comment').value;
 
-    // Create a date object in the local timezone
     const date = new Date(dateInput + 'T00:00:00');
 
-    if (description && !isNaN(amount)) {
+    if (!isNaN(amount) && category) {
         const transaction = {
             id: Date.now(),
-            description,
             amount,
-            date: date.toISOString(),  // Store date as ISO string
-            type
+            date: date.toISOString(),
+            type,
+            category,
+            comment
         };
 
         transactions.push(transaction);
         saveTransactions();
         updateUI();
         closeAddTransactionModal();
-        showTransactions();  // Asegúrate de mostrar la vista de transacciones después de añadir una
-        
-   
+        showTransactions();
     }
 }
+
 
 // Handle editing a transaction
 function handleEditTransaction(e) {
     e.preventDefault();
-    const description = document.getElementById('editDescription').value;
     const amount = parseFloat(document.getElementById('editAmount').value);
     const date = document.getElementById('editDate').value;
     const type = document.getElementById('editType').value;
+    const category = document.getElementById('editCategory').value;
+    const comment = document.getElementById('editComment').value;
 
-    if (description && amount && date) {
+    if (amount && date && category) {
         const index = transactions.findIndex(t => t.id === editingId);
         if (index !== -1) {
-            transactions[index] = { ...transactions[index], description, amount, date, type };
+            transactions[index] = { ...transactions[index], amount, date, type, category, comment };
             saveTransactions();
             updateUI();
             closeEditModal();
         }
     }
 }
-
 // Update UI with current transactions
 function updateUI() {
     const transactionList = document.getElementById('transactions');
@@ -112,8 +121,8 @@ function updateUI() {
         li.classList.add(transaction.type === 'income' ? 'income-item' : 'expense-item', 'transaction-item');
         li.innerHTML = `
             <div class="transaction-info">
-                <strong>${transaction.description}</strong>
-                <small>${formatDate(transaction.date)}</small>
+                <strong>${transaction.category}</strong>
+                <small>${formatDate(transaction.date)}${transaction.comment ? ' - ' + transaction.comment : ''}</small>
             </div>
             <div class="transaction-details">
                 <div class="transaction-amount">
@@ -151,8 +160,6 @@ function updateUI() {
     if (incomeTotal) incomeTotal.textContent = `$${income.toFixed(2)}`;
     if (expenseTotal) expenseTotal.textContent = `$${expense.toFixed(2)}`;
     if (balanceElement) balanceElement.textContent = `$${balance.toFixed(2)}`;
-
-
 }
 
 // Initialize the application
@@ -180,8 +187,9 @@ function editTransaction(id) {
         editingId = id;
         document.getElementById('editDescription').value = transaction.description;
         document.getElementById('editAmount').value = transaction.amount;
-        document.getElementById('editDate').value = transaction.date;
+        document.getElementById('editDate').value = transaction.date.split('T')[0];
         document.getElementById('editType').value = transaction.type;
+        document.getElementById('editCategory').value = transaction.category;
         editModal.style.display = 'block';
     }
 }
@@ -265,6 +273,8 @@ function showStats() {
 
 // Función para actualizar los gráficos
 function updateCharts() {
+
+    createCategoryChart();
     const isDarkMode = document.body.classList.contains('dark-mode');
 
     if (monthlyChartInstance) {
@@ -451,6 +461,22 @@ updateUI();
 showTransactions();
 
 document.addEventListener('DOMContentLoaded', function() {
+
+    // Cargar datos
+    loadTransactions();
+    loadCategories();
+
+        // Actualizar UI
+        updateUI();
+        updateCategoryOptions();
+
+            // Configurar event listeners
+    document.getElementById('manageCategoriesBtn').addEventListener('click', showCategoryManagementModal);
+    document.getElementById('closeCategoryManagementBtn').addEventListener('click', () => {
+        document.getElementById('categoryManagementModal').style.display = 'none';
+    });
+    document.getElementById('addCategoryForm').addEventListener('submit', addCategory);
+
     const showTransactionsBtn = document.getElementById('showTransactionsBtn');
     const showStatsBtn = document.getElementById('showStatsBtn');
     const transactionsView = document.getElementById('transactionsView');
@@ -525,4 +551,124 @@ function updateChartColors(chart, isDarkMode) {
     chart.options.plugins.legend.labels.color = isDarkMode ? '#fff' : '#666';
     
     chart.update();
+}
+
+
+
+// Cargar categorías desde el almacenamiento local
+function loadCategories() {
+    const savedCategories = localStorage.getItem('categories');
+    if (savedCategories) {
+        categories = JSON.parse(savedCategories);
+    }
+}
+
+// Guardar categorías en el almacenamiento local
+function saveCategories() {
+    localStorage.setItem('categories', JSON.stringify(categories));
+}
+
+// Actualizar las opciones de categoría en los formularios
+function updateCategoryOptions() {
+    const categorySelects = document.querySelectorAll('#category, #editCategory');
+    categorySelects.forEach(select => {
+        select.innerHTML = '<option value="">Seleccione una categoría</option>';
+        categories.forEach(category => {
+            select.innerHTML += `<option value="${category}">${category}</option>`;
+        });
+    });
+}
+
+// Mostrar el modal de gestión de categorías
+function showCategoryManagementModal() {
+    updateCategoryList();
+    document.getElementById('categoryManagementModal').style.display = 'block';
+}
+
+// Actualizar la lista de categorías en el modal
+function updateCategoryList() {
+    const categoryList = document.getElementById('categoryList');
+    categoryList.innerHTML = '';
+    categories.forEach(category => {
+        const categoryItem = document.createElement('div');
+        categoryItem.classList.add('category-item');
+        categoryItem.innerHTML = `
+            <span>${category}</span>
+            <button onclick="deleteCategory('${category}')">Eliminar</button>
+        `;
+        categoryList.appendChild(categoryItem);
+    });
+}
+// Añadir una nueva categoría
+function addCategory(e) {
+    e.preventDefault();
+    const newCategory = document.getElementById('newCategoryName').value.trim();
+    if (newCategory && !categories.includes(newCategory)) {
+        categories.push(newCategory);
+        saveCategories();
+        updateCategoryOptions();
+        updateCategoryList();
+        document.getElementById('newCategoryName').value = '';
+    }
+}
+
+// Eliminar una categoría
+function deleteCategory(category) {
+    categories = categories.filter(c => c !== category);
+    saveCategories();
+    updateCategoryOptions();
+    updateCategoryList();
+    updateUI();
+}
+
+
+// Crear gráfico de categorías
+function createCategoryChart() {
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const categoryData = getCategoryData();
+    
+    if (categoryChartInstance) {
+        categoryChartInstance.destroy();
+    }
+
+    categoryChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: categoryData.map(d => d.category),
+            datasets: [{
+                data: categoryData.map(d => d.total),
+                backgroundColor: getRandomColors(categoryData.length)
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Gastos por Categoría'
+            }
+        }
+    });
+}
+
+// Obtener datos de categorías para el gráfico
+function getCategoryData() {
+    const categoryData = {};
+    transactions.forEach(transaction => {
+        if (transaction.type === 'expense') {
+            if (!categoryData[transaction.category]) {
+                categoryData[transaction.category] = 0;
+            }
+            categoryData[transaction.category] += transaction.amount;
+        }
+    });
+    return Object.entries(categoryData).map(([category, total]) => ({ category, total }));
+}
+
+// Generar colores aleatorios para el gráfico
+function getRandomColors(count) {
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+        colors.push(`hsl(${Math.random() * 360}, 70%, 50%)`);
+    }
+    return colors;
 }
