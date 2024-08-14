@@ -222,20 +222,62 @@ function showTransactions() {
 
 // Show the stats view
 function showStats() {
+    const transactionsView = document.getElementById('transactionsView');
+    const statsView = document.getElementById('statsView');
+    const showStatsBtn = document.getElementById('showStatsBtn');
+    const showTransactionsBtn = document.getElementById('showTransactionsBtn');
+
+    // Ocultar la vista de transacciones y mostrar la de estadísticas
     transactionsView.style.display = 'none';
     statsView.style.display = 'block';
+
+    // Cambiar la clase active entre los botones
     showStatsBtn.classList.add('active');
     showTransactionsBtn.classList.remove('active');
-    updateCharts();
+
+    // Limpiar los gráficos existentes
+    if (monthlyChartInstance) {
+        monthlyChartInstance.destroy();
+        monthlyChartInstance = null;
+    }
+    if (yearlyChartInstance) {
+        yearlyChartInstance.destroy();
+        yearlyChartInstance = null;
+    }
+
+    // Mostrar animación de carga
+    const monthlyChartContainer = document.getElementById('monthlyChart').parentNode;
+    const yearlyChartContainer = document.getElementById('yearlyChart').parentNode;
+    monthlyChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico mensual...</div>';
+    yearlyChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico anual...</div>';
+
+    // Simular un retraso para la animación (puedes ajustar este tiempo)
+    setTimeout(() => {
+        // Recrear los canvas para los gráficos
+        monthlyChartContainer.innerHTML = '<canvas id="monthlyChart"></canvas>';
+        yearlyChartContainer.innerHTML = '<canvas id="yearlyChart"></canvas>';
+
+        // Volver a crear los gráficos
+        createChart('monthlyChart', 'Ingresos y Gastos por Mes', getMonthlyData(), 'monthly');
+        createChart('yearlyChart', 'Ingresos y Gastos por Año', getYearlyData(), 'yearly');
+    }, 1000); // 1 segundo de retraso, ajusta según sea necesario
 }
 
-// Update the charts with monthly and yearly data
+// Función para actualizar los gráficos
 function updateCharts() {
-    const monthlyData = getMonthlyData();
-    const yearlyData = getYearlyData();
+    const isDarkMode = document.body.classList.contains('dark-mode');
 
-    createChart('monthlyChart', 'Ingresos y Gastos por Mes', monthlyData, 'monthly');
-    createChart('yearlyChart', 'Ingresos y Gastos por Año', yearlyData, 'yearly');
+    if (monthlyChartInstance) {
+        updateChartColors(monthlyChartInstance, isDarkMode);
+    } else {
+        createChart('monthlyChart', 'Ingresos y Gastos por Mes', getMonthlyData(), 'monthly');
+    }
+
+    if (yearlyChartInstance) {
+        updateChartColors(yearlyChartInstance, isDarkMode);
+    } else {
+        createChart('yearlyChart', 'Ingresos y Gastos por Año', getYearlyData(), 'yearly');
+    }
 }
 
 // Get monthly data for the charts
@@ -287,19 +329,17 @@ function getYearlyData() {
         .slice(-5);  // Últimos 5 años
 }
 
+// Aplicar el modo oscuro si estaba activo anteriormente
+if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+}
+
 const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 // Create a chart
-// Crear gráfico
+// Modificar la función createChart para incluir la lógica de colores
 function createChart(canvasId, title, data, chartType) {
     const ctx = document.getElementById(canvasId).getContext('2d');
-
-    // Destruir el gráfico existente si existe
-    if (chartType === 'monthly' && monthlyChartInstance) {
-        monthlyChartInstance.destroy();
-    }
-    if (chartType === 'yearly' && yearlyChartInstance) {
-        yearlyChartInstance.destroy();
-    }
+    const isDarkMode = document.body.classList.contains('dark-mode');
 
     // Formatear etiquetas para el gráfico mensual
     const labels = data.map(([label]) => {
@@ -310,7 +350,6 @@ function createChart(canvasId, title, data, chartType) {
         return label;
     });
 
-    // Crear un nuevo gráfico
     const chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -319,15 +358,15 @@ function createChart(canvasId, title, data, chartType) {
                 {
                     label: 'Ingresos',
                     data: data.map(([_, values]) => values.income),
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: isDarkMode ? 'rgba(102, 187, 106, 0.6)' : 'rgba(75, 192, 192, 0.6)',
+                    borderColor: isDarkMode ? 'rgba(102, 187, 106, 1)' : 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 },
                 {
                     label: 'Gastos',
                     data: data.map(([_, values]) => values.expense),
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: isDarkMode ? 'rgba(255, 82, 82, 0.6)' : 'rgba(255, 99, 132, 0.6)',
+                    borderColor: isDarkMode ? 'rgba(255, 82, 82, 1)' : 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
                 }
             ]
@@ -335,14 +374,34 @@ function createChart(canvasId, title, data, chartType) {
         options: {
             responsive: true,
             scales: {
+                x: {
+                    grid: {
+                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    },
+                    ticks: {
+                        color: isDarkMode ? '#fff' : '#666',
+                    },
+                },
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    grid: {
+                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    },
+                    ticks: {
+                        color: isDarkMode ? '#fff' : '#666',
+                    },
                 }
             },
             plugins: {
                 title: {
                     display: true,
-                    text: title
+                    text: title,
+                    color: isDarkMode ? '#fff' : '#333'
+                },
+                legend: {
+                    labels: {
+                        color: isDarkMode ? '#fff' : '#666'
+                    }
                 }
             }
         }
@@ -351,11 +410,13 @@ function createChart(canvasId, title, data, chartType) {
     // Guardar la instancia del gráfico
     if (chartType === 'monthly') {
         monthlyChartInstance = chartInstance;
-    }
-    if (chartType === 'yearly') {
+    } else if (chartType === 'yearly') {
         yearlyChartInstance = chartInstance;
     }
+
+    return chartInstance;
 }
+
 
 
 
@@ -415,3 +476,53 @@ document.addEventListener('DOMContentLoaded', function() {
         showTransactionsBtn.classList.remove('active');
     });
 });
+
+
+// Función para cambiar entre modos claro y oscuro
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    
+    // Guardar la preferencia del usuario
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', isDarkMode);
+    
+    // Actualizar los gráficos
+    updateCharts();
+}
+
+
+// Evento para el botón de cambio de modo
+document.getElementById('modeToggle').addEventListener('click', toggleDarkMode);
+
+// Aplicar el modo oscuro si estaba activo anteriormente
+if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+}
+
+// Llamar a updateCharts después de que la página se haya cargado completamente
+document.addEventListener('DOMContentLoaded', () => {
+    updateCharts();
+});
+
+// Función para actualizar los colores de los gráficos
+function updateChartColors(chart, isDarkMode) {
+    chart.options.scales.x.grid.color = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    chart.options.scales.y.grid.color = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    chart.options.scales.x.ticks.color = isDarkMode ? '#fff' : '#666';
+    chart.options.scales.y.ticks.color = isDarkMode ? '#fff' : '#666';
+    
+    chart.data.datasets.forEach((dataset, i) => {
+        if (i === 0) { // Ingresos
+            dataset.backgroundColor = isDarkMode ? 'rgba(102, 187, 106, 0.6)' : 'rgba(75, 192, 192, 0.6)';
+            dataset.borderColor = isDarkMode ? 'rgba(102, 187, 106, 1)' : 'rgba(75, 192, 192, 1)';
+        } else { // Gastos
+            dataset.backgroundColor = isDarkMode ? 'rgba(255, 82, 82, 0.6)' : 'rgba(255, 99, 132, 0.6)';
+            dataset.borderColor = isDarkMode ? 'rgba(255, 82, 82, 1)' : 'rgba(255, 99, 132, 1)';
+        }
+    });
+    
+    chart.options.plugins.title.color = isDarkMode ? '#fff' : '#333';
+    chart.options.plugins.legend.labels.color = isDarkMode ? '#fff' : '#666';
+    
+    chart.update();
+}
