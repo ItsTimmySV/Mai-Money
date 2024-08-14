@@ -102,17 +102,27 @@ function updateUI() {
                 <strong>${transaction.description}</strong>
                 <small>${formatDate(transaction.date)}</small>
             </div>
-            <div class="transaction-amount">
-                <span class="amount ${transaction.type}">${transaction.type === 'income' ? '+' : '-'}$${Math.abs(transaction.amount).toFixed(2)}</span>
-            </div>
-            <div class="transaction-actions" style="display: none;">
-                <button class="edit-btn" onclick="editTransaction(${transaction.id})">Editar</button>
-                <button class="delete-btn" onclick="deleteTransaction(${transaction.id})">Eliminar</button>
+            <div class="transaction-details">
+                <div class="transaction-amount">
+                    <span class="amount ${transaction.type}">${transaction.type === 'income' ? '+' : '-'}$${Math.abs(transaction.amount).toFixed(2)}</span>
+                </div>
+                <div class="transaction-actions">
+                    <button class="edit-btn" onclick="editTransaction(${transaction.id})">Editar</button>
+                    <button class="delete-btn" onclick="deleteTransaction(${transaction.id})">Eliminar</button>
+                </div>
             </div>
         `;
         li.addEventListener('click', function() {
-            this.querySelector('.transaction-actions').style.display = 
-                this.querySelector('.transaction-actions').style.display === 'none' ? 'flex' : 'none';
+            const amount = this.querySelector('.transaction-amount');
+            const actions = this.querySelector('.transaction-actions');
+
+            if (actions.classList.contains('show')) {
+                actions.classList.remove('show');
+                amount.classList.remove('hidden');
+            } else {
+                actions.classList.add('show');
+                amount.classList.add('hidden');
+            }
         });
         transactionList.appendChild(li);
 
@@ -127,6 +137,7 @@ function updateUI() {
     expenseTotal.textContent = `$${expense.toFixed(2)}`;
     total.textContent = `$${(income - expense).toFixed(2)}`;
 }
+
 
 // Delete a transaction
 function deleteTransaction(id) {
@@ -316,11 +327,13 @@ function clearForm() {
     document.getElementById('type').value = 'income';
 }
 
-// Format date to a more readable format
+
+// Format date to a more readable format with full date
 function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long' };
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('es-ES', options);
 }
+
 
 // Get month name
 function getMonthName(monthIndex) {
