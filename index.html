@@ -1,27 +1,23 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Mai Money</title>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="styles.css">
-        <!-- Actualiza la versión de Chart.js y deshabilita el mapa de fuentes -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mai Money - Control de Ingresos y Gastos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
 <body>
     <div class="container">
         <header>
-            <button id="modeToggle" class="mode-toggle" aria-label="Cambiar modo">
-                <span class="mode-icon"></span>
-            </button>
             <h1 class="app-name">Mai Money</h1>
-            <h1>Control de Ingresos y Gastos</h1>
-            <nav>
-                <button id="showTransactionsBtn" class="active">Transacciones</button>
-                <button id="showStatsBtn">Estadísticas</button>
-            </nav>
+            <h2>Control de Ingresos y Gastos</h2>
         </header>
+
+        <nav>
+            <button id="showTransactionsBtn" class="active">Transacciones</button>
+            <button id="showStatsBtn">Estadísticas</button>
+        </nav>
 
         <main>
             <section id="transactionsView" class="section">
@@ -56,24 +52,33 @@
                         <h2>Anual</h2>
                         <canvas id="yearlyChart"></canvas>
                     </div>
+                    <div class="chart-wrapper">
+                        <h2>Por Categoría</h2>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
                 </div>
             </section>
         </main>
 
         <button id="addTransactionBtn" class="float-btn">+</button>
+        <button id="manageCategoriesBtn" class="float-btn">C</button>
+        <button id="modeToggle" class="mode-toggle"><span class="mode-icon"></span></button>
     </div>
 
     <div id="addTransactionModal" class="modal">
         <div class="modal-content">
             <h2>Agregar Transacción</h2>
             <form id="addTransactionForm">
-                <input type="text" id="description" placeholder="Descripción" required>
-                <input type="number" id="amount" placeholder="Monto" step="0.01" required>
+                <select id="category" required>
+                    <option value="">Seleccione una categoría</option>
+                </select>
+                <input type="number" id="amount" placeholder="Monto" required>
                 <input type="date" id="date" required>
                 <select id="type" required>
                     <option value="income">Ingreso</option>
                     <option value="expense">Gasto</option>
                 </select>
+                <textarea id="comment" placeholder="Comentario (opcional)"></textarea>
                 <button type="submit">Agregar</button>
                 <button type="button" id="cancelAddBtn">Cancelar</button>
             </form>
@@ -84,19 +89,35 @@
         <div class="modal-content">
             <h2>Editar Transacción</h2>
             <form id="editTransactionForm">
-                <input type="text" id="editDescription" placeholder="Descripción" required>
-                <input type="number" id="editAmount" placeholder="Monto" step="0.01" required>
+                <select id="editCategory" required>
+                    <option value="">Seleccione una categoría</option>
+                </select>
+                <input type="number" id="editAmount" placeholder="Monto" required>
                 <input type="date" id="editDate" required>
                 <select id="editType" required>
                     <option value="income">Ingreso</option>
                     <option value="expense">Gasto</option>
                 </select>
+                <textarea id="editComment" placeholder="Comentario (opcional)"></textarea>
                 <button type="submit">Actualizar</button>
                 <button type="button" id="cancelEditBtn">Cancelar</button>
             </form>
         </div>
     </div>
 
+    <div id="categoryManagementModal" class="modal">
+        <div class="modal-content">
+            <h2>Gestión de Categorías</h2>
+            <div id="categoryList" class="category-list"></div>
+            <form id="addCategoryForm" class="add-category-form">
+                <input type="text" id="newCategoryName" placeholder="Nueva categoría" required>
+                <button type="submit">Agregar Categoría</button>
+            </form>
+            <button id="closeCategoryManagementBtn">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <script src="javascripts.js"></script>
 </body>
 </html>
