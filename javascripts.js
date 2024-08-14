@@ -33,25 +33,30 @@ function loadTransactions() {
     }
 }
 
+
 // Save transactions to local storage
 function saveTransactions() {
     localStorage.setItem('transactions', JSON.stringify(transactions));
 }
+
 
 // Handle adding a new transaction
 function handleAddTransaction(e) {
     e.preventDefault();
     const description = document.getElementById('description').value;
     const amount = parseFloat(document.getElementById('amount').value);
-    const date = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('date').value;
     const type = document.getElementById('type').value;
 
-    if (description && amount) {
+    // Create a date object in the local timezone
+    const date = new Date(dateInput + 'T00:00:00');
+
+    if (description && !isNaN(amount)) {
         const transaction = {
             id: Date.now(),
             description,
             amount,
-            date,
+            date: date.toISOString(),  // Store date as ISO string
             type
         };
 
@@ -59,6 +64,9 @@ function handleAddTransaction(e) {
         saveTransactions();
         updateUI();
         closeAddTransactionModal();
+        showTransactions();  // Asegúrate de mostrar la vista de transacciones después de añadir una
+        
+   
     }
 }
 
@@ -86,7 +94,12 @@ function updateUI() {
     const transactionList = document.getElementById('transactions');
     const incomeTotal = document.getElementById('income-total');
     const expenseTotal = document.getElementById('expense-total');
-    const total = document.getElementById('total');
+    const balanceElement = document.getElementById('total');
+
+    if (!transactionList) {
+        console.error('Element with id "transactions" not found');
+        return;
+    }
 
     transactionList.innerHTML = '';
     let income = 0;
@@ -104,7 +117,7 @@ function updateUI() {
             </div>
             <div class="transaction-details">
                 <div class="transaction-amount">
-                    <span class="amount ${transaction.type}">${transaction.type === 'income' ? '+' : '-'}$${Math.abs(transaction.amount).toFixed(2)}</span>
+                    <span class="amount ${transaction.type}">${transaction.type === 'income' ? '+' : '-'}$${Math.abs(parseFloat(transaction.amount)).toFixed(2)}</span>
                 </div>
                 <div class="transaction-actions">
                     <button class="edit-btn" onclick="editTransaction(${transaction.id})">Editar</button>
@@ -127,16 +140,30 @@ function updateUI() {
         transactionList.appendChild(li);
 
         if (transaction.type === 'income') {
-            income += transaction.amount;
+            income += parseFloat(transaction.amount);
         } else {
-            expense += transaction.amount;
+            expense += parseFloat(transaction.amount);
         }
     });
 
-    incomeTotal.textContent = `$${income.toFixed(2)}`;
-    expenseTotal.textContent = `$${expense.toFixed(2)}`;
-    total.textContent = `$${(income - expense).toFixed(2)}`;
+    const balance = income - expense;
+
+    if (incomeTotal) incomeTotal.textContent = `$${income.toFixed(2)}`;
+    if (expenseTotal) expenseTotal.textContent = `$${expense.toFixed(2)}`;
+    if (balanceElement) balanceElement.textContent = `$${balance.toFixed(2)}`;
+
+
 }
+
+// Initialize the application
+function initApp() {
+    loadTransactions();
+    updateUI();
+    showTransactions();
+}
+
+// Call initApp when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', initApp);
 
 
 // Delete a transaction
@@ -168,8 +195,13 @@ function closeEditModal() {
 // Open the add transaction modal
 function openAddTransactionModal() {
     addTransactionModal.style.display = 'block';
-    document.getElementById('date').valueAsDate = new Date();
+
+    // Get today's date in the format 'yyyy-mm-dd'
+    const today = new Date().toLocaleDateString('en-CA'); // Formato 'yyyy-mm-dd'
+    document.getElementById('date').value = today;
 }
+
+
 
 // Close the add transaction modal
 function closeAddTransactionModal() {
@@ -177,12 +209,15 @@ function closeAddTransactionModal() {
     clearForm();
 }
 
-// Show the transactions view
+// Show transactions view
 function showTransactions() {
-    transactionsView.style.display = 'block';
-    statsView.style.display = 'none';
-    showTransactionsBtn.classList.add('active');
-    showStatsBtn.classList.remove('active');
+    const transactionsView = document.getElementById('transactionsView');
+    const statsView = document.getElementById('statsView');
+    if (transactionsView && statsView) {
+        transactionsView.style.display = 'block';
+        statsView.style.display = 'none';
+    }
+    updateUI();
 }
 
 // Show the stats view
@@ -222,9 +257,14 @@ function getMonthlyData() {
     });
 
     return Object.entries(data)
-        .sort(([a], [b]) => new Date(b.split(' ')[1], monthNames.indexOf(b.split(' ')[0])) - new Date(a.split(' ')[1], monthNames.indexOf(a.split(' ')[0])))
+        .sort(([a], [b]) => {
+            const [monthA, yearA] = a.split(' ');
+            const [monthB, yearB] = b.split(' ');
+            return new Date(yearB, monthNames.indexOf(monthB)) - new Date(yearA, monthNames.indexOf(monthA));
+        })
         .slice(-12);  // Últimos 12 meses
 }
+
 
 
 
@@ -249,10 +289,11 @@ function getYearlyData() {
 
 const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 // Create a chart
+// Crear gráfico
 function createChart(canvasId, title, data, chartType) {
     const ctx = document.getElementById(canvasId).getContext('2d');
 
-    // Destroy the existing chart if it exists
+    // Destruir el gráfico existente si existe
     if (chartType === 'monthly' && monthlyChartInstance) {
         monthlyChartInstance.destroy();
     }
@@ -260,16 +301,16 @@ function createChart(canvasId, title, data, chartType) {
         yearlyChartInstance.destroy();
     }
 
-    // Format labels for monthly chart
+    // Formatear etiquetas para el gráfico mensual
     const labels = data.map(([label]) => {
         if (chartType === 'monthly') {
-            const [year, month] = label.split(' ');
-            return `${month} ${year}`;
+            const [month] = label.split(' ');
+            return month;  // Solo retorna el mes
         }
         return label;
     });
 
-    // Create a new chart
+    // Crear un nuevo gráfico
     const chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -307,7 +348,7 @@ function createChart(canvasId, title, data, chartType) {
         }
     });
 
-    // Save the chart instance
+    // Guardar la instancia del gráfico
     if (chartType === 'monthly') {
         monthlyChartInstance = chartInstance;
     }
@@ -315,6 +356,7 @@ function createChart(canvasId, title, data, chartType) {
         yearlyChartInstance = chartInstance;
     }
 }
+
 
 
 
@@ -328,11 +370,12 @@ function clearForm() {
 }
 
 
-// Format date to a more readable format with full date
+// Format date to a more readable format with full date, using the local format of El Salvador
 function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('es-ES', options);
+    const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/El_Salvador' };
+    return new Date(dateString).toLocaleDateString('es-SV', options);
 }
+
 
 
 // Get month name
@@ -345,3 +388,30 @@ function getMonthName(monthIndex) {
 loadTransactions();
 updateUI();
 showTransactions();
+
+document.addEventListener('DOMContentLoaded', function() {
+    const showTransactionsBtn = document.getElementById('showTransactionsBtn');
+    const showStatsBtn = document.getElementById('showStatsBtn');
+    const transactionsView = document.getElementById('transactionsView');
+    const statsView = document.getElementById('statsView');
+
+    showTransactionsBtn.addEventListener('click', function() {
+        // Mostrar la vista de transacciones y ocultar la de estadísticas
+        transactionsView.style.display = 'block';
+        statsView.style.display = 'none';
+
+        // Cambiar la clase active entre los botones
+        showTransactionsBtn.classList.add('active');
+        showStatsBtn.classList.remove('active');
+    });
+
+    showStatsBtn.addEventListener('click', function() {
+        // Mostrar la vista de estadísticas y ocultar la de transacciones
+        transactionsView.style.display = 'none';
+        statsView.style.display = 'block';
+
+        // Cambiar la clase active entre los botones
+        showStatsBtn.classList.add('active');
+        showTransactionsBtn.classList.remove('active');
+    });
+});
