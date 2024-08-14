@@ -261,24 +261,75 @@ function showStats() {
         yearlyChartInstance.destroy();
         yearlyChartInstance = null;
     }
+    if (categoryChartInstance) {
+        categoryChartInstance.destroy();
+        categoryChartInstance = null;
+    }
 
     // Mostrar animación de carga
     const monthlyChartContainer = document.getElementById('monthlyChart').parentNode;
     const yearlyChartContainer = document.getElementById('yearlyChart').parentNode;
+    const categoryChartContainer = document.getElementById('categoryChart').parentNode;
+    
     monthlyChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico mensual...</div>';
     yearlyChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico anual...</div>';
+    categoryChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico de categorías...</div>';
 
     // Simular un retraso para la animación (puedes ajustar este tiempo)
     setTimeout(() => {
         // Recrear los canvas para los gráficos
         monthlyChartContainer.innerHTML = '<canvas id="monthlyChart"></canvas>';
         yearlyChartContainer.innerHTML = '<canvas id="yearlyChart"></canvas>';
+        categoryChartContainer.innerHTML = '<canvas id="categoryChart"></canvas>';
 
         // Volver a crear los gráficos
         createChart('monthlyChart', 'Ingresos y Gastos por Mes', getMonthlyData(), 'monthly');
         createChart('yearlyChart', 'Ingresos y Gastos por Año', getYearlyData(), 'yearly');
+        createCategoryChart(); // Actualiza o crea el gráfico de categorías
     }, 1000); // 1 segundo de retraso, ajusta según sea necesario
 }
+
+// Crear o actualizar el gráfico de categorías
+function createCategoryChart() {
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const isDarkMode = document.body.classList.contains('dark-mode');
+
+    const categoryData = categories.map(category => {
+        return transactions
+            .filter(transaction => transaction.category === category)
+            .reduce((sum, transaction) => sum + transaction.amount, 0);
+    });
+
+    categoryChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: categories,
+            datasets: [{
+                data: categoryData,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)'
+                ],
+                borderColor: isDarkMode ? '#fff' : '#666',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: isDarkMode ? '#fff' : '#666'
+                    }
+                }
+            }
+        }
+    });
+}
+
 
 // Función para actualizar los gráficos
 function updateCharts() {
@@ -508,14 +559,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     showStatsBtn.addEventListener('click', function() {
+        
         // Mostrar la vista de estadísticas y ocultar la de transacciones
         transactionsView.style.display = 'none';
         statsView.style.display = 'block';
+        
 
         // Cambiar la clase active entre los botones
         showStatsBtn.classList.add('active');
         showTransactionsBtn.classList.remove('active');
+
+
+        
     });
+    
 });
 
 
