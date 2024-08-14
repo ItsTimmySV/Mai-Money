@@ -341,14 +341,19 @@ li:hover {
     position: fixed;
     top: 20px;
     right: 20px;
-    background-color: var(--card-background);
-    color: var(--text-color);
+    width: 30px;
+    height: 30px;
+    background-color: var(--text-color);
     border: none;
-    padding: 10px;
-    border-radius: var(--border-radius);
+    border-radius: 50%;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s;
+    z-index: 1000;
 }
+
 
 .mode-toggle:hover {
     background-color: var(--primary-color);
@@ -391,4 +396,20 @@ li:hover {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.mode-icon {
+    width: 20px;
+    height: 20px;
+    background-color: var(--background-color);
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.dark-mode .mode-toggle {
+    background-color: var(--background-color);
+}
+
+.dark-mode .mode-icon {
+    background-color: var(--text-color);
 }
