@@ -193,8 +193,8 @@ li:hover {
 
 .float-btn {
     position: fixed;
-    width: 60px;
-    height: 60px;
+    width: 40px; /* Tamaño reducido */
+    height: 40px; /* Tamaño reducido */
     bottom: 40px;
     right: 40px;
     background-color: var(--primary-color);
@@ -202,7 +202,7 @@ li:hover {
     border-radius: 50%;
     text-align: center;
     box-shadow: var(--box-shadow);
-    font-size: 24px;
+    font-size: 18px; /* Tamaño del texto reducido */
     border: none;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
