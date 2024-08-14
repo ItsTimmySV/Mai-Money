@@ -315,3 +315,13 @@ li:hover {
 .transaction-item button:last-child {
     margin-right: 0; /* Asegúrate de que el último botón (Eliminar) no tenga margen adicional */
 }
+
+.app-name {
+    font-size: 1.2em; /* Tamaño de fuente pequeño */
+    font-weight: 700; /* Negrita */
+    color: var(--primary-color);
+    text-transform: uppercase;
+    margin-bottom: 5px; /* Espacio más pequeño debajo del título */
+    letter-spacing: 1px; /* Espaciado entre letras más sutil */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Sombra más ligera */
+}
