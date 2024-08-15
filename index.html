@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mai Money - Control de Ingresos y Gastos</title>
+    <title>Mai Money</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -16,7 +20,9 @@
 
         <nav>
             <button id="showTransactionsBtn" class="active">Transacciones</button>
+            <button id="showCalendarBtn">Calendario</button>
             <button id="showStatsBtn">Estadísticas</button>
+            
         </nav>
 
         <main>
@@ -117,6 +123,25 @@
         </div>
     </div>
 
+    <section id="calendarView" class="section" style="display:none;">
+        <div id="calendar"></div>
+        <div id="dailyTransactions" class="modal">
+            <div class="modal-content">
+                <h2>Transacciones del día</h2>
+                <ul id="dailyTransactionsList"></ul>
+                <button id="closeDailyTransactions">Cerrar</button>
+            </div>
+        </div>
+        <div id="archivedMonths">
+            <h3>Meses Archivados</h3>
+            <ul id="archivedMonthsList"></ul>
+        </div>
+    </section>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <script src="javascripts.js"></script>
 </body>
