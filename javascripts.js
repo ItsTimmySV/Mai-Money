@@ -288,40 +288,33 @@ function showStats() {
 
 // Crear o actualizar el gráfico de categorías
 function createCategoryChart() {
-    const ctx = document.getElementById('categoryChart').getContext('2d');
-    const isDarkMode = document.body.classList.contains('dark-mode');
+    const chartCanvas = document.getElementById('categoryChart');
+    if (!chartCanvas) {
+        console.warn('El elemento categoryChart no existe en el DOM');
+        return; // Salir de la función si el elemento no existe
+    }
 
-    const categoryData = categories.map(category => {
-        return transactions
-            .filter(transaction => transaction.category === category)
-            .reduce((sum, transaction) => sum + transaction.amount, 0);
-    });
+    const ctx = chartCanvas.getContext('2d');
+    const categoryData = getCategoryData();
+    
+    if (categoryChartInstance) {
+        categoryChartInstance.destroy();
+    }
 
     categoryChartInstance = new Chart(ctx, {
-        type: 'doughnut',
+        type: 'pie',
         data: {
-            labels: categories,
+            labels: categoryData.map(d => d.category),
             datasets: [{
-                data: categoryData,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.6)',
-                    'rgba(54, 162, 235, 0.6)',
-                    'rgba(255, 206, 86, 0.6)',
-                    'rgba(75, 192, 192, 0.6)',
-                    'rgba(153, 102, 255, 0.6)'
-                ],
-                borderColor: isDarkMode ? '#fff' : '#666',
-                borderWidth: 1
+                data: categoryData.map(d => d.total),
+                backgroundColor: getRandomColors(categoryData.length)
             }]
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: isDarkMode ? '#fff' : '#666'
-                    }
-                }
+            title: {
+                display: true,
+                text: 'Gastos por Categoría'
             }
         }
     });
