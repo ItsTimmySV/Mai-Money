@@ -36,7 +36,6 @@ body {
     max-width: 1200px;
     margin: 0 auto;
 }
-
 header {
     text-align: center;
     margin-bottom: 30px;
@@ -54,7 +53,7 @@ nav {
 }
 
 nav button {
-    padding: 10px 20px;
+    padding: 5px 10px;
     margin: 0 10px;
     background-color: var(--card-background);
     color: var(--text-color);
@@ -336,6 +335,7 @@ li:hover {
 .transaction-item {
     cursor: pointer;
     transition: background-color 0.3s ease;
+    
 }
 
 
@@ -539,6 +539,25 @@ li:hover {
 
 #calendar {
     margin-bottom: 20px;
+    font-size: 0.9em;
+    padding: 10px;
+}
+
+.fc-toolbar {
+    flex-wrap: wrap;
+}
+
+.fc-toolbar-chunk {
+    margin-bottom: 5px;
+}
+
+.fc-button {
+    padding: 0.3em 0.6em;
+    font-size: 0.9em;
+}
+
+.fc-day-grid-container {
+    height: auto !important;
 }
 
 .fc-event {
