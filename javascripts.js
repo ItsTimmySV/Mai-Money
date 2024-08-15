@@ -288,33 +288,40 @@ function showStats() {
 
 // Crear o actualizar el gráfico de categorías
 function createCategoryChart() {
-    const chartCanvas = document.getElementById('categoryChart');
-    if (!chartCanvas) {
-        console.warn('El elemento categoryChart no existe en el DOM');
-        return; // Salir de la función si el elemento no existe
-    }
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const isDarkMode = document.body.classList.contains('dark-mode');
 
-    const ctx = chartCanvas.getContext('2d');
-    const categoryData = getCategoryData();
-    
-    if (categoryChartInstance) {
-        categoryChartInstance.destroy();
-    }
+    const categoryData = categories.map(category => {
+        return transactions
+            .filter(transaction => transaction.category === category)
+            .reduce((sum, transaction) => sum + transaction.amount, 0);
+    });
 
     categoryChartInstance = new Chart(ctx, {
-        type: 'pie',
+        type: 'doughnut',
         data: {
-            labels: categoryData.map(d => d.category),
+            labels: categories,
             datasets: [{
-                data: categoryData.map(d => d.total),
-                backgroundColor: getRandomColors(categoryData.length)
+                data: categoryData,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)'
+                ],
+                borderColor: isDarkMode ? '#fff' : '#666',
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
-            title: {
-                display: true,
-                text: 'Gastos por Categoría'
+            plugins: {
+                legend: {
+                    labels: {
+                        color: isDarkMode ? '#fff' : '#666'
+                    }
+                }
             }
         }
     });
@@ -535,28 +542,86 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeCalendar();
     });
 
+    let currentDate = new Date();
+
     function initializeCalendar() {
-        if (calendarInstance) {
-            calendarInstance.fullCalendar('destroy');
-        }
-    
-        calendarInstance = $('#calendar').fullCalendar({
-            header: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'month,agendaWeek,agendaDay'
-            },
-            events: generateCalendarEvents(),
-            eventClick: function(event) {
-                showDailyTransactions(event.start);
-            },
-            eventRender: function(event, element) {
-                element.css('background-color', event.color);
-            }
+        updateCalendarHeader();
+        renderCalendar();
+        
+        document.getElementById('prevMonth').addEventListener('click', () => {
+          currentDate.setMonth(currentDate.getMonth() - 1);
+          renderCalendar();
         });
-    
-        updateArchivedMonths();
-    }
+        
+        document.getElementById('nextMonth').addEventListener('click', () => {
+          currentDate.setMonth(currentDate.getMonth() + 1);
+          renderCalendar();
+        });
+        
+        document.getElementById('closeDailySummary').addEventListener('click', () => {
+          document.getElementById('dailyTransactionsSummary').style.display = 'none';
+        });
+      }
+
+      function updateCalendarHeader() {
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+        document.getElementById('currentMonthYear').textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+      }
+
+
+      function renderCalendar() {
+        const calendarEl = document.getElementById('calendar');
+        calendarEl.innerHTML = '';
+        
+        const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        
+        const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        daysOfWeek.forEach(day => {
+          const dayHeader = document.createElement('div');
+          dayHeader.className = 'calendar-day-header';
+          dayHeader.textContent = day;
+          calendarEl.appendChild(dayHeader);
+        });
+        
+        for (let i = 0; i < firstDay.getDay(); i++) {
+          calendarEl.appendChild(document.createElement('div'));
+        }
+        
+        for (let i = 1; i <= lastDay.getDate(); i++) {
+          const dayEl = document.createElement('div');
+          dayEl.className = 'calendar-day';
+          dayEl.innerHTML = `<div class="day-number">${i}</div>`;
+          
+          const currentDayTransactions = getTransactionsForDay(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
+          if (currentDayTransactions.length > 0) {
+            const summary = document.createElement('div');
+            summary.className = 'transaction-summary';
+            summary.textContent = `${currentDayTransactions.length} transacción(es)`;
+            dayEl.appendChild(summary);
+          }
+          
+          dayEl.addEventListener('click', () => showDailyTransactions(new Date(currentDate.getFullYear(), currentDate.getMonth(), i)));
+          calendarEl.appendChild(dayEl);
+        }
+        
+        updateCalendarHeader();
+      }
+
+      function getTransactionsForDay(date) {
+        return transactions.filter(t => {
+          const transactionDate = new Date(t.date);
+          return transactionDate.getDate() === date.getDate() &&
+                 transactionDate.getMonth() === date.getMonth() &&
+                 transactionDate.getFullYear() === date.getFullYear();
+        });
+      }
+
+
+
+
 
     function generateCalendarEvents() {
         return transactions.map(transaction => ({
@@ -568,21 +633,51 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showDailyTransactions(date) {
-        const dailyTransactions = transactions.filter(t => 
-            moment(t.date).isSame(date, 'day')
-        );
-    
+        const dailyTransactions = getTransactionsForDay(date);
         const dailyTransactionsList = document.getElementById('dailyTransactionsList');
+        const selectedDateEl = document.getElementById('selectedDate');
+        const dailyTotalEl = document.getElementById('dailyTotal');
+        
+        selectedDateEl.textContent = `Transacciones del ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
         dailyTransactionsList.innerHTML = '';
-    
+        
+        let dailyTotal = 0;
+        
         dailyTransactions.forEach(t => {
-            const li = document.createElement('li');
-            li.textContent = `${t.category}: ${t.type === 'income' ? '+' : '-'}$${t.amount}`;
-            dailyTransactionsList.appendChild(li);
+          const transactionEl = document.createElement('div');
+          transactionEl.className = `transaction-item ${t.type}`;
+          transactionEl.innerHTML = `
+            <span>${t.category}</span>
+            <span>${t.type === 'income' ? '+' : '-'}$${Math.abs(t.amount).toFixed(2)}</span>
+          `;
+          dailyTransactionsList.appendChild(transactionEl);
+          
+          dailyTotal += t.type === 'income' ? t.amount : -t.amount;
         });
+        
+        dailyTotalEl.textContent = `Total del día: $${dailyTotal.toFixed(2)}`;
+        document.getElementById('dailyTransactionsSummary').style.display = 'block';
+      }
+
+      // Asegúrate de llamar a esta función cuando se cargue la página
+document.addEventListener('DOMContentLoaded', initializeCalendar);
+
+
+// Modifica la función existente showCalendar para usar la nueva vista
+function showCalendar() {
+    document.getElementById('transactionsView').style.display = 'none';
+    document.getElementById('statsView').style.display = 'none';
+    document.getElementById('calendarView').style.display = 'block';
     
-        document.getElementById('dailyTransactions').style.display = 'block';
-    }
+    document.getElementById('showTransactionsBtn').classList.remove('active');
+    document.getElementById('showStatsBtn').classList.remove('active');
+    document.getElementById('showCalendarBtn').classList.add('active');
+    
+    renderCalendar();
+  }
+  
+  // Asegúrate de que el botón del calendario llame a esta función
+  document.getElementById('showCalendarBtn').addEventListener('click', showCalendar);
     
     document.getElementById('closeDailyTransactions').addEventListener('click', function() {
         document.getElementById('dailyTransactions').style.display = 'none';
