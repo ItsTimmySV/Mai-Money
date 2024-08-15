@@ -4,6 +4,8 @@ let monthlyChartInstance = null;
 let yearlyChartInstance = null;
 let categoryChartInstance = null;
 let categories = ['Comida', 'Transporte', 'Entretenimiento', 'Servicios', 'Otros'];
+let calendarInstance = null;
+let archivedMonths = {};
 
 
 // DOM Elements
@@ -230,10 +232,16 @@ function closeAddTransactionModal() {
 function showTransactions() {
     const transactionsView = document.getElementById('transactionsView');
     const statsView = document.getElementById('statsView');
-    if (transactionsView && statsView) {
-        transactionsView.style.display = 'block';
-        statsView.style.display = 'none';
-    }
+    const calendarView = document.getElementById('calendarView');
+    
+    transactionsView.style.display = 'block';
+    statsView.style.display = 'none';
+    calendarView.style.display = 'none';
+    
+    document.getElementById('showTransactionsBtn').classList.add('active');
+    document.getElementById('showStatsBtn').classList.remove('active');
+    document.getElementById('showCalendarBtn').classList.remove('active');
+    
     updateUI();
 }
 
@@ -241,52 +249,41 @@ function showTransactions() {
 function showStats() {
     const transactionsView = document.getElementById('transactionsView');
     const statsView = document.getElementById('statsView');
-    const showStatsBtn = document.getElementById('showStatsBtn');
-    const showTransactionsBtn = document.getElementById('showTransactionsBtn');
-
-    // Ocultar la vista de transacciones y mostrar la de estadísticas
+    const calendarView = document.getElementById('calendarView');
+    
     transactionsView.style.display = 'none';
     statsView.style.display = 'block';
-
-    // Cambiar la clase active entre los botones
-    showStatsBtn.classList.add('active');
-    showTransactionsBtn.classList.remove('active');
-
-    // Limpiar los gráficos existentes
-    if (monthlyChartInstance) {
-        monthlyChartInstance.destroy();
-        monthlyChartInstance = null;
-    }
-    if (yearlyChartInstance) {
-        yearlyChartInstance.destroy();
-        yearlyChartInstance = null;
-    }
-    if (categoryChartInstance) {
-        categoryChartInstance.destroy();
-        categoryChartInstance = null;
-    }
-
-    // Mostrar animación de carga
-    const monthlyChartContainer = document.getElementById('monthlyChart').parentNode;
-    const yearlyChartContainer = document.getElementById('yearlyChart').parentNode;
-    const categoryChartContainer = document.getElementById('categoryChart').parentNode;
+    calendarView.style.display = 'none';
     
-    monthlyChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico mensual...</div>';
-    yearlyChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico anual...</div>';
-    categoryChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico de categorías...</div>';
+    document.getElementById('showTransactionsBtn').classList.remove('active');
+    document.getElementById('showStatsBtn').classList.add('active');
+    document.getElementById('showCalendarBtn').classList.remove('active');
 
-    // Simular un retraso para la animación (puedes ajustar este tiempo)
-    setTimeout(() => {
-        // Recrear los canvas para los gráficos
-        monthlyChartContainer.innerHTML = '<canvas id="monthlyChart"></canvas>';
-        yearlyChartContainer.innerHTML = '<canvas id="yearlyChart"></canvas>';
-        categoryChartContainer.innerHTML = '<canvas id="categoryChart"></canvas>';
-
-        // Volver a crear los gráficos
-        createChart('monthlyChart', 'Ingresos y Gastos por Mes', getMonthlyData(), 'monthly');
-        createChart('yearlyChart', 'Ingresos y Gastos por Año', getYearlyData(), 'yearly');
-        createCategoryChart('hola'); // Actualiza o crea el gráfico de categorías
-    }, 10); // 1 segundo de retraso, ajusta según sea necesario
+        // Mostrar animación de carga
+        const monthlyChartContainer = document.getElementById('monthlyChart').parentNode;
+        const yearlyChartContainer = document.getElementById('yearlyChart').parentNode;
+        const categoryChartContainer = document.getElementById('categoryChart').parentNode;
+        
+        monthlyChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico mensual...</div>';
+        yearlyChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico anual...</div>';
+        categoryChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico de categorías...</div>';
+    
+        // Simular un retraso para la animación (puedes ajustar este tiempo)
+        setTimeout(() => {
+            // Recrear los canvas para los gráficos
+            monthlyChartContainer.innerHTML = '<canvas id="monthlyChart"></canvas>';
+            yearlyChartContainer.innerHTML = '<canvas id="yearlyChart"></canvas>';
+            categoryChartContainer.innerHTML = '<canvas id="categoryChart"></canvas>';
+    
+            // Volver a crear los gráficos
+            createChart('monthlyChart', 'Ingresos y Gastos por Mes', getMonthlyData(), 'monthly');
+            createChart('yearlyChart', 'Ingresos y Gastos por Año', getYearlyData(), 'yearly');
+            createCategoryChart(); // Actualiza o crea el gráfico de categorías
+        }, 10); // 1 segundo de retraso, ajusta según sea necesario
+    
+    
+    // Actualizar todos los gráficos
+    updateCharts();
 }
 
 // Crear o actualizar el gráfico de categorías
@@ -333,18 +330,20 @@ function createCategoryChart() {
 
 // Función para actualizar los gráficos
 function updateCharts() {
-
-    createCategoryChart();
+    createCategoryChart(); // Asegúrate de que esta función esté actualizando el gráfico correctamente
+    
     const isDarkMode = document.body.classList.contains('dark-mode');
 
     if (monthlyChartInstance) {
         updateChartColors(monthlyChartInstance, isDarkMode);
+        monthlyChartInstance.update(); // Asegúrate de actualizar el gráfico mensual
     } else {
         createChart('monthlyChart', 'Ingresos y Gastos por Mes', getMonthlyData(), 'monthly');
     }
 
     if (yearlyChartInstance) {
         updateChartColors(yearlyChartInstance, isDarkMode);
+        yearlyChartInstance.update(); // Asegúrate de actualizar el gráfico anual
     } else {
         createChart('yearlyChart', 'Ingresos y Gastos por Año', getYearlyData(), 'yearly');
     }
@@ -528,6 +527,103 @@ showTransactions();
 
 document.addEventListener('DOMContentLoaded', function() {
 
+    const showCalendarBtn = document.getElementById('showCalendarBtn');
+    const calendarView = document.getElementById('calendarView');
+
+    showCalendarBtn.addEventListener('click', function() {
+        transactionsView.style.display = 'none';
+        statsView.style.display = 'none';
+        calendarView.style.display = 'block';
+
+        showTransactionsBtn.classList.remove('active');
+        showStatsBtn.classList.remove('active');
+        showCalendarBtn.classList.add('active');
+
+        initializeCalendar();
+    });
+
+    function initializeCalendar() {
+        if (calendarInstance) {
+            calendarInstance.fullCalendar('destroy');
+        }
+    
+        calendarInstance = $('#calendar').fullCalendar({
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay'
+            },
+            events: generateCalendarEvents(),
+            eventClick: function(event) {
+                showDailyTransactions(event.start);
+            },
+            eventRender: function(event, element) {
+                element.css('background-color', event.color);
+            }
+        });
+    
+        updateArchivedMonths();
+    }
+
+    function generateCalendarEvents() {
+        return transactions.map(transaction => ({
+            title: `${transaction.type === 'income' ? '+' : '-'}$${transaction.amount}`,
+            start: transaction.date,
+            allDay: true,
+            color: transaction.type === 'income' ? '#4CAF50' : '#f44336'
+        }));
+    }
+    
+    function showDailyTransactions(date) {
+        const dailyTransactions = transactions.filter(t => 
+            moment(t.date).isSame(date, 'day')
+        );
+    
+        const dailyTransactionsList = document.getElementById('dailyTransactionsList');
+        dailyTransactionsList.innerHTML = '';
+    
+        dailyTransactions.forEach(t => {
+            const li = document.createElement('li');
+            li.textContent = `${t.category}: ${t.type === 'income' ? '+' : '-'}$${t.amount}`;
+            dailyTransactionsList.appendChild(li);
+        });
+    
+        document.getElementById('dailyTransactions').style.display = 'block';
+    }
+    
+    document.getElementById('closeDailyTransactions').addEventListener('click', function() {
+        document.getElementById('dailyTransactions').style.display = 'none';
+    });
+    
+    function updateArchivedMonths() {
+        const currentDate = moment();
+        archivedMonths = {};
+    
+        transactions.forEach(transaction => {
+            const transactionDate = moment(transaction.date);
+            if (transactionDate.isBefore(currentDate, 'month')) {
+                const key = transactionDate.format('YYYY-MM');
+                if (!archivedMonths[key]) {
+                    archivedMonths[key] = { income: 0, expense: 0 };
+                }
+                if (transaction.type === 'income') {
+                    archivedMonths[key].income += transaction.amount;
+                } else {
+                    archivedMonths[key].expense += transaction.amount;
+                }
+            }
+        });
+    
+        const archivedMonthsList = document.getElementById('archivedMonthsList');
+        archivedMonthsList.innerHTML = '';
+    
+        Object.entries(archivedMonths).forEach(([key, data]) => {
+            const li = document.createElement('li');
+            li.textContent = `${moment(key, 'YYYY-MM').format('MMMM YYYY')}: Ingresos: $${data.income.toFixed(2)}, Gastos: $${data.expense.toFixed(2)}`;
+            archivedMonthsList.appendChild(li);
+        });
+    }
+
     // Cargar datos
     loadTransactions();
     loadCategories();
@@ -568,6 +664,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Cambiar la clase active entre los botones
         showStatsBtn.classList.add('active');
         showTransactionsBtn.classList.remove('active');
+
+        updateCharts(); // Recargar los gráficos después de agregar una transacción
+        
 
 
         
