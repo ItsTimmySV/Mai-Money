@@ -10,19 +10,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
             <h1 class="app-name">Mai Money</h1>
-            <!--<h2>Control de Ingresos y Gastos</h2>-->
         </header>
 
         <nav>
             <button id="showTransactionsBtn" class="active">Transacciones</button>
             <button id="showCalendarBtn">Calendario</button>
             <button id="showStatsBtn">Estadísticas</button>
-            
         </nav>
 
         <main>
@@ -123,26 +122,23 @@
         </div>
     </div>
 
-    <section id="calendarView" class="section" style="display:none;">
+    <div id="calendarView" class="section" style="display:none;">
+        <div id="calendarControls">
+          <button id="prevMonth" class="calendar-btn">&lt; Anterior</button>
+          <h2 id="currentMonthYear"></h2>
+          <button id="nextMonth" class="calendar-btn">Siguiente &gt;</button>
+        </div>
         <div id="calendar"></div>
-        <div id="dailyTransactions" class="modal">
-            <div class="modal-content">
-                <h2>Transacciones del día</h2>
-                <ul id="dailyTransactionsList"></ul>
-                <button id="closeDailyTransactions">Cerrar</button>
-            </div>
+        <div id="dailyTransactionsSummary" class="modal">
+          <div class="modal-content">
+            <h3 id="selectedDate"></h3>
+            <div id="dailyTransactionsList"></div>
+            <div id="dailyTotal"></div>
+            <button id="closeDailySummary" class="close-btn">Cerrar</button>
+          </div>
         </div>
-        <div id="archivedMonths">
-            <h3>Meses Archivados</h3>
-            <ul id="archivedMonthsList"></ul>
-        </div>
-    </section>
+      </div>
 
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <script src="javascripts.js"></script>
 </body>
 </html>
