@@ -79,7 +79,7 @@ nav button:hover, nav button.active {
 
 .balance, .income, .expense {
     background-color: var(--card-background);
-    padding: 20px;
+    padding: 10px;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     flex: 1;
