@@ -529,4 +529,99 @@ li:hover {
     margin-right: 10px;
 }
 
+/* Estilos para la vista del calendario */
+#calendarView {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+#calendar {
+    margin-bottom: 20px;
+}
+
+.fc-event {
+    cursor: pointer;
+}
+
+.fc-day-grid-event .fc-content {
+    white-space: normal;
+}
+
+#dailyTransactions {
+    display: none;
+}
+
+#archivedMonths {
+    margin-top: 20px;
+}
+
+#archivedMonthsList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#archivedMonthsList li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+}
+
+/* Ajustes para el modo oscuro */
+.dark-mode .fc-unthemed th,
+.dark-mode .fc-unthemed td,
+.dark-mode .fc-unthemed thead,
+.dark-mode .fc-unthemed tbody,
+.dark-mode .fc-unthemed .fc-divider,
+.dark-mode .fc-unthemed .fc-row,
+.dark-mode .fc-unthemed .fc-content,
+.dark-mode .fc-unthemed .fc-popover,
+.dark-mode .fc-unthemed .fc-list-view,
+.dark-mode .fc-unthemed .fc-list-heading td {
+    border-color: #555;
+}
+
+.dark-mode .fc-unthemed .fc-today {
+    background: #333;
+}
+
+#calendar {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.fc-unthemed th,
+.fc-unthemed td,
+.fc-unthemed thead,
+.fc-unthemed tbody,
+.fc-unthemed .fc-divider,
+.fc-unthemed .fc-row,
+.fc-unthemed .fc-content,
+.fc-unthemed .fc-popover,
+.fc-unthemed .fc-list-view,
+.fc-unthemed .fc-list-heading td {
+    border-color: var(--text-color);
+}
+
+.fc-unthemed .fc-today {
+    background: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.fc-event {
+    border-radius: 3px;
+    border: none;
+    padding: 2px 5px;
+    margin-bottom: 2px;
+}
+
+.fc-day-grid-event .fc-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 
