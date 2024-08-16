@@ -602,19 +602,19 @@ document.addEventListener('DOMContentLoaded', function() {
         renderCalendar();
         
         document.getElementById('prevMonth').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
+          currentDate.setMonth(currentDate.getMonth() - 1);
+          renderCalendar();
         });
         
         document.getElementById('nextMonth').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
+          currentDate.setMonth(currentDate.getMonth() + 1);
+          renderCalendar();
         });
         
         document.getElementById('closeDailySummary').addEventListener('click', () => {
-            document.getElementById('dailyTransactionsSummary').style.display = 'none';
+          document.getElementById('dailyTransactionsSummary').style.display = 'none';
         });
-    }
+      }
 
       function updateCalendarHeader() {
         const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -634,32 +634,35 @@ document.addEventListener('DOMContentLoaded', function() {
         const daysOfWeek = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
         
         daysOfWeek.forEach(day => {
-            const dayHeader = document.createElement('div');
-            dayHeader.className = 'calendar-day-header';
-            dayHeader.textContent = day;
-            calendarEl.appendChild(dayHeader);
+          const dayHeader = document.createElement('div');
+          dayHeader.className = 'calendar-day-header';
+          dayHeader.textContent = day;
+          calendarEl.appendChild(dayHeader);
         });
         
         for (let i = 0; i < firstDay.getDay(); i++) {
-            calendarEl.appendChild(document.createElement('div'));
+          calendarEl.appendChild(document.createElement('div'));
         }
         
         for (let i = 1; i <= lastDay.getDate(); i++) {
-            const dayEl = document.createElement('div');
-            dayEl.className = 'calendar-day';
-            dayEl.innerHTML = `<span class="day-number">${i}</span>`;
-            
-            const currentDayTransactions = getTransactionsForDay(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
-            if (currentDayTransactions.length > 0) {
-                dayEl.classList.add('has-transactions');
-            }
-            
-            dayEl.addEventListener('click', () => showDailyTransactions(new Date(currentDate.getFullYear(), currentDate.getMonth(), i)));
-            calendarEl.appendChild(dayEl);
+          const dayEl = document.createElement('div');
+          dayEl.className = 'calendar-day';
+          dayEl.innerHTML = `<span class="day-number">${i}</span>`;
+          
+          const currentDayTransactions = getTransactionsForDay(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
+          if (currentDayTransactions.length > 0) {
+            const summary = document.createElement('div');
+            summary.className = 'transaction-summary';
+            summary.textContent = `${currentDayTransactions.length}`;
+            dayEl.appendChild(summary);
+          }
+          
+          dayEl.addEventListener('click', () => showDailyTransactions(new Date(currentDate.getFullYear(), currentDate.getMonth(), i)));
+          calendarEl.appendChild(dayEl);
         }
         
         updateCalendarHeader();
-    }
+      }
 
       function getTransactionsForDay(date) {
         return transactions.filter(t => {
