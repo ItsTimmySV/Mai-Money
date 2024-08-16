@@ -862,3 +862,139 @@ li:hover {
       min-height: 25px;
     }
   }
+
+
+   /* Credit card section */
+
+   .card-details {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 30px;
+}
+
+.card-stats {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+#addCreditCardForm input, #addCreditCardForm button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid #ddd;
+}
+
+#addCreditCardForm button {
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#addCreditCardForm button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+.transaction-actions1 {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.transaction-actions1 button {
+    padding: 10px;
+    width: 48%;
+    border-radius: var(--border-radius);
+    border: 1px solid #ddd;
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.transaction-actions1 button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+
+/* Botón para agregar tarjeta */
+#toggleCardFormBtn {
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+}
+
+/* Botón activo */
+.nav-button.active {
+    background-color: green;
+    color: white;
+}
+
+/* Historial de Movimientos */
+#transactionHistory {
+    margin-top: 20px;
+}
+
+#transactionList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#transactionList li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.transaction-actions1 {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.transaction-actions1 button {
+    padding: 10px;
+    width: 48%;
+    border-radius: var(--border-radius);
+    border: 1px solid #ddd;
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.transaction-actions1 button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+#transactionList li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+}
+
+.delete-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+    background-color: darkred;
+}
