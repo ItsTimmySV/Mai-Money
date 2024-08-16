@@ -1017,3 +1017,212 @@ function getRandomColors(count) {
     }
     return colors;
 }
+
+
+//Credit card section
+
+document.getElementById('addCreditCardForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    let cardName = document.getElementById('cardName').value;
+    let cardLastDigits = document.getElementById('cardLastDigits').value;
+    let interestRate = parseFloat(document.getElementById('interestRate').value);
+    let creditLimit = parseFloat(document.getElementById('creditLimit').value);
+    let cutoffDate = document.getElementById('cutoffDate').value;
+    let paymentDate = document.getElementById('paymentDate').value;
+    
+    // Validar que los últimos 4 dígitos tengan exactamente 4 caracteres
+    if(cardLastDigits.length !== 4) {
+        alert("Los últimos 4 dígitos deben tener exactamente 4 números.");
+        return;
+    }
+
+    let creditCard = {
+        cardName,
+        cardLastDigits,
+        interestRate,
+        creditLimit,
+        cutoffDate,
+        paymentDate,
+        currentBalance: creditLimit  // Inicia con el crédito total
+    };
+
+    // Almacenar en localStorage
+    localStorage.setItem('creditCard', JSON.stringify(creditCard));
+
+    // Mostrar la información de la tarjeta
+    displayCardInfo();
+});
+
+
+function updateCardExpensesChart() {
+    var ctx = document.getElementById('cardExpensesChart').getContext('2d');
+    var cardExpensesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+            datasets: [{
+                label: 'Gastos Mensuales',
+                data: [100, 200, 150, 300, 250],
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+document.getElementById('showCreditCardBtn').addEventListener('click', function() {
+    document.getElementById('transactionsView').style.display = 'none';
+    document.getElementById('statsView').style.display = 'none';
+    document.getElementById('calendarView').style.display = 'none';
+    document.getElementById('creditCardView').style.display = 'block';
+});
+
+
+function displayCardInfo() {
+    let creditCard = JSON.parse(localStorage.getItem('creditCard'));
+
+    if (creditCard) {
+        document.getElementById('cardInfo').innerHTML = `
+            <p>Tarjeta: ${creditCard.cardName} ****${creditCard.cardLastDigits}</p>
+            <p>Crédito Total: $${creditCard.creditLimit}</p>
+            <p>Balance Disponible: $${creditCard.currentBalance}</p>
+        `;
+    }
+}
+
+// Mostrar la deuda actual
+function displayDebtInfo() {
+    let creditCard = JSON.parse(localStorage.getItem('creditCard'));
+
+    if (creditCard) {
+        let debt = creditCard.creditLimit - creditCard.currentBalance;
+        document.getElementById('debtInfo').innerHTML = `
+            <p>Deuda Actual: $${debt}</p>
+        `;
+    }
+}
+
+document.getElementById('addExpenseBtn').addEventListener('click', function() {
+    let amount = parseFloat(prompt("Ingresa el monto del gasto:"));
+    if (isNaN(amount) || amount <= 0) {
+        alert("Por favor ingresa un monto válido.");
+        return;
+    }
+    updateBalance(-amount);
+    addTransaction1('Gasto', amount);
+});
+
+document.getElementById('addIncomeBtn').addEventListener('click', function() {
+    let amount = parseFloat(prompt("Ingresa el monto del ingreso (pago):"));
+    if (isNaN(amount) || amount <= 0) {
+        alert("Por favor ingresa un monto válido.");
+        return;
+    }
+    updateBalance(amount);
+    addTransaction1('Ingreso', amount);
+});
+
+// Función para actualizar el balance y la deuda
+function updateBalance(amount) {
+    let creditCard = JSON.parse(localStorage.getItem('creditCard'));
+    if (creditCard) {
+        creditCard.currentBalance += amount;
+        localStorage.setItem('creditCard', JSON.stringify(creditCard));
+        displayCardInfo();
+        displayDebtInfo();  // Actualizar la deuda después de cada cambio
+    }
+}
+
+// Función para mostrar la lista de movimientos
+function displayTransactions() {
+    let transactions1 = JSON.parse(localStorage.getItem('transactions1')) || [];
+    let transactionList = document.getElementById('transactionList');
+    transactionList.innerHTML = '';
+
+    transactions1.forEach(transaction1 => {
+        let li = document.createElement('li');
+        li.innerHTML = `
+            <span>${transaction1.date} - ${transaction1.type}: $${transaction1.amount}</span>
+            <button class="delete-btn" onclick="deleteTransaction(${transaction1.id})">Eliminar</button>
+        `;
+        transactionList.appendChild(li);
+    });
+}
+
+// Actualizar navegación y mostrar/ocultar secciones
+function showSection(sectionId, buttonId) {
+    document.querySelectorAll('.section').forEach(section => {
+        section.style.display = 'none';
+    });
+    document.querySelectorAll('.nav-button').forEach(button => {
+        button.classList.remove('active');
+        button.style.backgroundColor = 'black';
+        button.style.color = 'white';
+    });
+    document.getElementById(sectionId).style.display = 'block';
+    let button = document.getElementById(buttonId);
+    button.classList.add('active');
+    button.style.backgroundColor = 'green';
+}
+
+document.getElementById('showCreditCardBtn').addEventListener('click', function() {
+    showSection('creditCardView', 'showCreditCardBtn');
+});
+
+document.getElementById('showTransactionsBtn').addEventListener('click', function() {
+    showSection('transactionsView', 'showTransactionsBtn');
+});
+
+document.getElementById('showCalendarBtn').addEventListener('click', function() {
+    showSection('calendarView', 'showCalendarBtn');
+});
+
+document.getElementById('showStatsBtn').addEventListener('click', function() {
+    showSection('statsView', 'showStatsBtn');
+});
+
+
+// Función para mostrar/ocultar el formulario de agregar tarjeta
+document.getElementById('toggleCardFormBtn').addEventListener('click', function() {
+    let form = document.getElementById('addCreditCardForm');
+    form.style.display = (form.style.display === "none") ? "block" : "none";
+});
+
+// Función para añadir y mostrar movimientos
+function addTransaction1(type, amount) {
+    let transactions1 = JSON.parse(localStorage.getItem('transactions1')) || [];
+    let transaction1 = { id: Date.now(), type, amount, date: new Date().toLocaleString() };
+    transactions1.push(transaction1);
+    localStorage.setItem('transactions1', JSON.stringify(transactions1));
+    displayTransactions();
+}
+
+// Función para eliminar un movimiento
+function deleteTransaction(id) {
+    let transactions1 = JSON.parse(localStorage.getItem('transactions1')) || [];
+    let transaction1 = transactions1.find(trans => trans.id === id);
+    if (transaction1) {
+        let adjustment = transaction1.type === 'Gasto' ? transaction1.amount : -transaction1.amount;
+        updateBalance(adjustment);  // Revertir el impacto del movimiento en el balance
+        transactions1 = transactions1.filter(trans => trans.id !== id);
+        localStorage.setItem('transactions1', JSON.stringify(transactions1));
+        displayTransactions();
+    }
+}
+
+
+// Mostrar la información al cargar la página si ya existe una tarjeta y movimientos en localStorage
+window.onload = function() {
+    displayCardInfo();
+    displayDebtInfo();
+    displayTransactions();
+};
