@@ -77,7 +77,7 @@ function handleAddTransaction(e) {
         updateUI();
         closeAddTransactionModal();
         showTransactions();
-        clearForm(); // Llamar a clearForm después de agregar la transacción
+        clearForm();
     }
 }
 
@@ -532,6 +532,8 @@ function isMobileDevice() {
 
 document.addEventListener('DOMContentLoaded', function() {
 
+    loadCategories();
+
     if (isMobileDevice()) {
         document.body.classList.add('mobile-device');
         console.log('Usuario en dispositivo móvil');
@@ -874,22 +876,33 @@ function loadCategories() {
     const savedCategories = localStorage.getItem('categories');
     if (savedCategories) {
         categories = JSON.parse(savedCategories);
+    } else {
+        // Si no hay categorías guardadas, usar las predeterminadas
+        categories = ['Comida', 'Transporte', 'Entretenimiento', 'Servicios', 'Otros'];
+        saveCategories();
     }
+    updateCategoryOptions();
 }
 
 // Guardar categorías en el almacenamiento local
 function saveCategories() {
     localStorage.setItem('categories', JSON.stringify(categories));
+    updateCategoryOptions();
 }
 
 // Actualizar las opciones de categoría en los formularios
 function updateCategoryOptions() {
     const categorySelects = document.querySelectorAll('#category, #editCategory');
     categorySelects.forEach(select => {
+        const currentValue = select.value;
         select.innerHTML = '<option value="">Seleccione una categoría</option>';
         categories.forEach(category => {
-            select.innerHTML += `<option value="${category}">${category}</option>`;
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            select.appendChild(option);
         });
+        select.value = currentValue;
     });
 }
 
@@ -907,16 +920,20 @@ function showCategoryManagementModal() {
 // Actualizar la lista de categorías en el modal
 function updateCategoryList() {
     const categoryList = document.getElementById('categoryList');
-    categoryList.innerHTML = '';
-    categories.forEach(category => {
-        const categoryItem = document.createElement('div');
-        categoryItem.classList.add('category-item');
-        categoryItem.innerHTML = `
-            <span>${category}</span>
-            <button onclick="deleteCategory('${category}')">Eliminar</button>
-        `;
-        categoryList.appendChild(categoryItem);
-    });
+    if (categoryList) {
+        categoryList.innerHTML = '';
+        categories.forEach(category => {
+            const categoryItem = document.createElement('div');
+            categoryItem.classList.add('category-item');
+            categoryItem.innerHTML = `
+                <span>${category}</span>
+                <button onclick="deleteCategory('${category}')">Eliminar</button>
+            `;
+            categoryList.appendChild(categoryItem);
+        });
+    } else {
+        console.error("Element with id 'categoryList' not found");
+    }
 }
 // Añadir una nueva categoría
 function addCategory(e) {
@@ -927,7 +944,6 @@ function addCategory(e) {
         if (newCategory && !categories.includes(newCategory)) {
             categories.push(newCategory);
             saveCategories();
-            updateCategoryOptions();
             updateCategoryList();
             newCategoryInput.value = '';
         }
@@ -940,7 +956,6 @@ function addCategory(e) {
 function deleteCategory(category) {
     categories = categories.filter(c => c !== category);
     saveCategories();
-    updateCategoryOptions();
     updateCategoryList();
     updateUI();
 }
