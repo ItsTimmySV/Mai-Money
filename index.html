@@ -201,18 +201,16 @@
             </form>
         </div>
     </div>
+    <br>
+<nav class="icon-nav">
+<!-- Nuevos botones para importar y exportar y eliminar -->
+<button id="exportDataBtn" class="nav-button" onclick="exportData()">Exportar Datos</button>
+<button id="importDataBtn" class="nav-button" onclick="handleImportClick()">Importar Datos</button>
+<input type="file" id="importInput" style="display: none;" onchange="importData(event)">
+<button onclick="confirmDataDeletion()" class="nav-button" class="btn btn-danger">Eliminar Todos los Datos</button>
+</nav>
 
 
-
-
-
-                <!-- Nuevos botones para importar y exportar -->
-                <button id="exportDataBtn" onclick="exportData()">Exportar Datos</button>
-                <button id="importDataBtn" onclick="handleImportClick()">Importar Datos</button>
-                <input type="file" id="importInput" style="display: none;" onchange="importData(event)">
-    
-    
-    
     
     
 
