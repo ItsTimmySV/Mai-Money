@@ -144,7 +144,7 @@ function updateUI() {
                 </div>
                 <div class="transaction-actions">
                     <button class="edit-btn" onclick="editTransaction(${transaction.id})">Editar</button>
-                    <button class="delete-btn" onclick="deleteTransaction(${transaction.id})">Eliminar</button>
+                    <button class="delete-btn" onclick="deleteTransaction1(${transaction.id})">Eliminar</button>
                 </div>
             </div>
         `;
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', initApp);
 
 
 // Delete a transaction
-function deleteTransaction(id) {
+function deleteTransaction1(id) {
     transactions = transactions.filter(t => t.id !== id);
     saveTransactions();
     updateUI();
@@ -1346,3 +1346,33 @@ function handleImportClick() {
     document.getElementById('importInput').click();
 }
 
+// Función para confirmar y eliminar todos los datos
+function confirmDataDeletion() {
+    if (confirm('¿Estás seguro de que quieres eliminar TODOS los datos? Esta acción no se puede deshacer.')) {
+        // Eliminar todos los datos del localStorage
+        localStorage.clear();
+
+        // Reiniciar variables globales
+        transactions = [];
+        categories = ['Comida', 'Transporte', 'Entretenimiento', 'Servicios', 'Otros'];
+        archivedMonths = {};
+
+        // Actualizar la interfaz
+        updateUI();
+        displayCardInfo();
+        displayDebtInfo();
+        displayTransactions();
+        updateCategoryOptions();
+        updateCharts();
+
+        alert('Todos los datos han sido eliminados.');
+    }
+}
+
+// Agregar event listener al botón de eliminar datos
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteAllDataBtn = document.getElementById('deleteAllDataBtn');
+    if (deleteAllDataBtn) {
+        deleteAllDataBtn.addEventListener('click', confirmDataDeletion);
+    }
+});
