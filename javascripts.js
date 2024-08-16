@@ -525,7 +525,58 @@ loadTransactions();
 updateUI();
 showTransactions();
 
+// Función para detectar si es un dispositivo móvil
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+
+    if (isMobileDevice()) {
+        document.body.classList.add('mobile-device');
+        console.log('Usuario en dispositivo móvil');
+        // Aquí puedes añadir cualquier código específico para dispositivos móviles
+    } else {
+        document.body.classList.add('desktop-device');
+        console.log('Usuario en PC');
+        // Aquí puedes añadir cualquier código específico para PC
+    }
+
+    const closeDailySummaryBtn = document.getElementById('closeDailySummary');
+    if (closeDailySummaryBtn) {
+        closeDailySummaryBtn.addEventListener('click', function() {
+            const dailyTransactionsSummary = document.getElementById('dailyTransactionsSummary');
+            if (dailyTransactionsSummary) {
+                dailyTransactionsSummary.style.display = 'none';
+            }
+        });
+    } else {
+        console.error("Elemento con id 'closeDailySummary' no encontrado");
+    }
+
+        // Set up event listeners
+        const manageCategoriesBtn = document.getElementById('manageCategoriesBtn');
+        if (manageCategoriesBtn) {
+            manageCategoriesBtn.addEventListener('click', showCategoryManagementModal);
+        } else {
+            console.error("Element with id 'manageCategoriesBtn' not found");
+        }
+    
+        const closeCategoryManagementBtn = document.getElementById('closeCategoryManagementBtn');
+        if (closeCategoryManagementBtn) {
+            closeCategoryManagementBtn.addEventListener('click', () => {
+                document.getElementById('categoryManagementModal').style.display = 'none';
+            });
+        } else {
+            console.error("Element with id 'closeCategoryManagementBtn' not found");
+        }
+    
+        const addCategoryForm = document.getElementById('addCategoryForm');
+        if (addCategoryForm) {
+            addCategoryForm.addEventListener('submit', addCategory);
+        } else {
+            console.error("Element with id 'addCategoryForm' not found");
+        }
 
     const showCalendarBtn = document.getElementById('showCalendarBtn');
     const calendarView = document.getElementById('calendarView');
@@ -570,7 +621,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('currentMonthYear').textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
       }
 
-
       function renderCalendar() {
         const calendarEl = document.getElementById('calendar');
         calendarEl.innerHTML = '';
@@ -578,7 +628,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
         const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
         
-        const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        // Días de la semana abreviados
+        const daysOfWeek = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+        
         daysOfWeek.forEach(day => {
           const dayHeader = document.createElement('div');
           dayHeader.className = 'calendar-day-header';
@@ -593,13 +645,13 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 1; i <= lastDay.getDate(); i++) {
           const dayEl = document.createElement('div');
           dayEl.className = 'calendar-day';
-          dayEl.innerHTML = `<div class="day-number">${i}</div>`;
+          dayEl.innerHTML = `<span class="day-number">${i}</span>`;
           
           const currentDayTransactions = getTransactionsForDay(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
           if (currentDayTransactions.length > 0) {
             const summary = document.createElement('div');
             summary.className = 'transaction-summary';
-            summary.textContent = `${currentDayTransactions.length} transacción(es)`;
+            summary.textContent = `${currentDayTransactions.length}`;
             dayEl.appendChild(summary);
           }
           
@@ -719,6 +771,9 @@ function showCalendar() {
         // Actualizar UI
         updateUI();
         updateCategoryOptions();
+
+        
+        
 
             // Configurar event listeners
     document.getElementById('manageCategoriesBtn').addEventListener('click', showCategoryManagementModal);
@@ -840,8 +895,13 @@ function updateCategoryOptions() {
 
 // Mostrar el modal de gestión de categorías
 function showCategoryManagementModal() {
-    updateCategoryList();
-    document.getElementById('categoryManagementModal').style.display = 'block';
+    const modal = document.getElementById('categoryManagementModal');
+    if (modal) {
+        updateCategoryList();
+        modal.style.display = 'block';
+    } else {
+        console.error("Element with id 'categoryManagementModal' not found");
+    }
 }
 
 // Actualizar la lista de categorías en el modal
@@ -861,13 +921,18 @@ function updateCategoryList() {
 // Añadir una nueva categoría
 function addCategory(e) {
     e.preventDefault();
-    const newCategory = document.getElementById('newCategoryName').value.trim();
-    if (newCategory && !categories.includes(newCategory)) {
-        categories.push(newCategory);
-        saveCategories();
-        updateCategoryOptions();
-        updateCategoryList();
-        document.getElementById('newCategoryName').value = '';
+    const newCategoryInput = document.getElementById('newCategoryName');
+    if (newCategoryInput) {
+        const newCategory = newCategoryInput.value.trim();
+        if (newCategory && !categories.includes(newCategory)) {
+            categories.push(newCategory);
+            saveCategories();
+            updateCategoryOptions();
+            updateCategoryList();
+            newCategoryInput.value = '';
+        }
+    } else {
+        console.error("Element with id 'newCategoryName' not found");
     }
 }
 
