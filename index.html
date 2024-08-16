@@ -22,6 +22,7 @@
             <button id="showTransactionsBtn" class="active">Transacciones</button>
             <button id="showCalendarBtn">Calendario</button>
             <button id="showStatsBtn">Estadísticas</button>
+            <button id="showCreditCardBtn">Tarjeta de Crédito</button>
         </nav>
 
         <main>
@@ -138,6 +139,40 @@
           </div>
         </div>
       </div>
+
+
+      <!--credit card section-->
+
+      <section id="creditCardView" class="section" style="display:none;">
+        <div class="card-details">
+            <h2>Gestión de Tarjeta de Crédito</h2>
+            <button id="toggleCardFormBtn">Agregar Tarjeta</button>
+            <form id="addCreditCardForm" style="display:none;">
+                <input type="text" id="cardName" placeholder="Nombre de la Tarjeta" required>
+                <input type="number" id="cardLastDigits" placeholder="Últimos 4 Dígitos" required maxlength="4">
+                <input type="number" step="0.01" id="interestRate" placeholder="Tasa de Interés (%)" required>
+                <input type="number" step="0.01" id="creditLimit" placeholder="Crédito Total de la Tarjeta" required>
+                <input type="date" id="cutoffDate" placeholder="Fecha de Corte" required>
+                <input type="date" id="paymentDate" placeholder="Fecha de Pago" required>
+                <button type="submit">Agregar Tarjeta</button>
+            </form>
+            <div id="cardInfo"></div>
+            <div id="debtInfo"></div> <!-- Campo para mostrar la deuda -->
+        </div>
+        <div class="transaction-actions1">
+            <button id="addExpenseBtn">Registrar Gasto</button>
+            <button id="addIncomeBtn">Registrar Ingreso</button>
+        </div>
+        <div id="transactionHistory">
+            <h3>Historial de Movimientos</h3>
+            <ul id="transactionList"></ul>
+        </div>
+    </section>
+    
+    
+    
+    
+    
 
       <script src="javascripts.js"></script>
 </body>
