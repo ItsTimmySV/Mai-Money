@@ -8,6 +8,7 @@ let calendarInstance = null;
 let archivedMonths = {};
 
 
+
 // DOM Elements
 const transactionsView = document.getElementById('transactionsView');
 const statsView = document.getElementById('statsView');
@@ -633,10 +634,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Días de la semana abreviados
         const daysOfWeek = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
         
+        const calendarGreen = 'rgb(102, 187, 106)'; // Define el color verde constante
+
         daysOfWeek.forEach(day => {
           const dayHeader = document.createElement('div');
           dayHeader.className = 'calendar-day-header';
           dayHeader.textContent = day;
+          dayHeader.style.color = calendarGreen; // Usa el color verde constante
           calendarEl.appendChild(dayHeader);
         });
         
@@ -662,6 +666,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         updateCalendarHeader();
+        
       }
 
       function getTransactionsForDay(date) {
@@ -843,6 +848,7 @@ if (localStorage.getItem('darkMode') === 'true') {
 
 // Llamar a updateCharts después de que la página se haya cargado completamente
 document.addEventListener('DOMContentLoaded', () => {
+    
     updateCharts();
 });
 
