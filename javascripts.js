@@ -1279,3 +1279,70 @@ window.onload = function() {
     displayDebtInfo();
     displayTransactions();
 };
+
+
+
+// Función para exportar datos
+function exportData() {
+    const data = {
+        transactions: transactions,
+        categories: categories,
+        creditCard: JSON.parse(localStorage.getItem('creditCard')),
+        transactions1: JSON.parse(localStorage.getItem('transactions1')),
+        archivedMonths: archivedMonths
+    };
+
+    const dataStr = JSON.stringify(data);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = 'mai_money_data.json';
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+}
+
+// Función para importar datos
+function importData(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            
+            // Restaurar datos
+            transactions = data.transactions;
+            categories = data.categories;
+            localStorage.setItem('creditCard', JSON.stringify(data.creditCard));
+            localStorage.setItem('transactions1', JSON.stringify(data.transactions1));
+            archivedMonths = data.archivedMonths;
+
+            // Guardar datos en localStorage
+            saveTransactions();
+            saveCategories();
+
+            // Actualizar la interfaz
+            updateUI();
+            displayCardInfo();
+            displayDebtInfo();
+            displayTransactions();
+            updateCategoryOptions();
+            updateCharts();
+
+            alert('Datos importados con éxito');
+        } catch (error) {
+            console.error('Error al importar datos:', error);
+            alert('Error al importar datos. Por favor, asegúrate de que el archivo es válido.');
+        }
+    };
+
+    reader.readAsText(file);
+}
+
+// Función para manejar el clic en el botón de importar
+function handleImportClick() {
+    document.getElementById('importInput').click();
+}
+
