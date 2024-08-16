@@ -799,6 +799,8 @@ function showCalendar() {
         transactionsView.style.display = 'block';
         statsView.style.display = 'none';
 
+        
+
         // Cambiar la clase active entre los botones
         showTransactionsBtn.classList.add('active');
         showStatsBtn.classList.remove('active');
@@ -1031,7 +1033,6 @@ document.getElementById('addCreditCardForm').addEventListener('submit', function
     let cutoffDate = document.getElementById('cutoffDate').value;
     let paymentDate = document.getElementById('paymentDate').value;
     
-    // Validar que los últimos 4 dígitos tengan exactamente 4 caracteres
     if(cardLastDigits.length !== 4) {
         alert("Los últimos 4 dígitos deben tener exactamente 4 números.");
         return;
@@ -1044,14 +1045,17 @@ document.getElementById('addCreditCardForm').addEventListener('submit', function
         creditLimit,
         cutoffDate,
         paymentDate,
-        currentBalance: creditLimit  // Inicia con el crédito total
+        currentBalance: creditLimit
     };
 
-    // Almacenar en localStorage
     localStorage.setItem('creditCard', JSON.stringify(creditCard));
 
-    // Mostrar la información de la tarjeta
     displayCardInfo();
+    displayDebtInfo();
+    
+    // Ocultar el formulario y limpiar los campos
+    this.style.display = 'none';
+    this.reset();
 });
 
 
@@ -1084,6 +1088,8 @@ document.getElementById('showCreditCardBtn').addEventListener('click', function(
     document.getElementById('statsView').style.display = 'none';
     document.getElementById('calendarView').style.display = 'none';
     document.getElementById('creditCardView').style.display = 'block';
+    document.getElementById('addTransactionBtn').style.display = 'none';
+    document.getElementById('manageCategoriesBtn').style.display = 'none';
 });
 
 
@@ -1091,11 +1097,25 @@ function displayCardInfo() {
     let creditCard = JSON.parse(localStorage.getItem('creditCard'));
 
     if (creditCard) {
+        let debt = creditCard.creditLimit - creditCard.currentBalance;
         document.getElementById('cardInfo').innerHTML = `
             <p>Tarjeta: ${creditCard.cardName} ****${creditCard.cardLastDigits}</p>
             <p>Crédito Total: $${creditCard.creditLimit}</p>
             <p>Balance Disponible: $${creditCard.currentBalance}</p>
+            <p>Deuda Actual: $${debt}</p>
+            <button id="deleteCardBtn" class="delete-btn">Eliminar Tarjeta</button>
         `;
+        // Volver a agregar el evento al botón de eliminar
+        document.getElementById('deleteCardBtn').addEventListener('click', function() {
+            if (confirm('¿Estás seguro de que quieres eliminar los datos de la tarjeta?')) {
+                localStorage.removeItem('creditCard');
+                document.getElementById('cardInfo').innerHTML = '<p>No hay tarjeta registrada</p>';
+                document.getElementById('addCreditCardForm').style.display = 'block';
+            }
+        });
+    } else {
+        document.getElementById('cardInfo').innerHTML = '<p>No hay tarjeta registrada</p>';
+        document.getElementById('addCreditCardForm').style.display = 'block';
     }
 }
 
@@ -1106,29 +1126,40 @@ function displayDebtInfo() {
     if (creditCard) {
         let debt = creditCard.creditLimit - creditCard.currentBalance;
         document.getElementById('debtInfo').innerHTML = `
-            <p>Deuda Actual: $${debt}</p>
+            
         `;
     }
 }
 
 document.getElementById('addExpenseBtn').addEventListener('click', function() {
-    let amount = parseFloat(prompt("Ingresa el monto del gasto:"));
-    if (isNaN(amount) || amount <= 0) {
-        alert("Por favor ingresa un monto válido.");
-        return;
-    }
-    updateBalance(-amount);
-    addTransaction1('Gasto', amount);
+    document.getElementById('creditCardTransactionModal').style.display = 'block';
+    document.getElementById('ccTransactionType').value = 'Gasto';
 });
 
 document.getElementById('addIncomeBtn').addEventListener('click', function() {
-    let amount = parseFloat(prompt("Ingresa el monto del ingreso (pago):"));
+    document.getElementById('creditCardTransactionModal').style.display = 'block';
+    document.getElementById('ccTransactionType').value = 'Ingreso';
+});
+
+document.getElementById('cancelCCTransaction').addEventListener('click', function() {
+    document.getElementById('creditCardTransactionModal').style.display = 'none';
+});
+
+document.getElementById('creditCardTransactionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let type = document.getElementById('ccTransactionType').value;
+    let amount = parseFloat(document.getElementById('ccTransactionAmount').value);
+    let date = document.getElementById('ccTransactionDate').value;
+    let comment = document.getElementById('ccTransactionComment').value;
+
     if (isNaN(amount) || amount <= 0) {
         alert("Por favor ingresa un monto válido.");
         return;
     }
-    updateBalance(amount);
-    addTransaction1('Ingreso', amount);
+
+    updateBalance(type === 'Gasto' ? -amount : amount);
+    addTransaction1(type, amount, date, comment);
+    document.getElementById('creditCardTransactionModal').style.display = 'none';
 });
 
 // Función para actualizar el balance y la deuda
@@ -1145,13 +1176,14 @@ function updateBalance(amount) {
 // Función para mostrar la lista de movimientos
 function displayTransactions() {
     let transactions1 = JSON.parse(localStorage.getItem('transactions1')) || [];
-    let transactionList = document.getElementById('transactionList');
+    let transactionList = document.getElementById('transactionHistory');
     transactionList.innerHTML = '';
 
     transactions1.forEach(transaction1 => {
         let li = document.createElement('li');
         li.innerHTML = `
             <span>${transaction1.date} - ${transaction1.type}: $${transaction1.amount}</span>
+            <p>${transaction1.comment || ''}</p>
             <button class="delete-btn" onclick="deleteTransaction(${transaction1.id})">Eliminar</button>
         `;
         transactionList.appendChild(li);
@@ -1171,7 +1203,7 @@ function showSection(sectionId, buttonId) {
     document.getElementById(sectionId).style.display = 'block';
     let button = document.getElementById(buttonId);
     button.classList.add('active');
-    button.style.backgroundColor = 'green';
+    button.style.backgroundColor = '#66bb6a';
 }
 
 document.getElementById('showCreditCardBtn').addEventListener('click', function() {
@@ -1180,14 +1212,20 @@ document.getElementById('showCreditCardBtn').addEventListener('click', function(
 
 document.getElementById('showTransactionsBtn').addEventListener('click', function() {
     showSection('transactionsView', 'showTransactionsBtn');
+    document.getElementById('addTransactionBtn').style.display = 'block';
+    document.getElementById('manageCategoriesBtn').style.display = 'block';
 });
 
 document.getElementById('showCalendarBtn').addEventListener('click', function() {
     showSection('calendarView', 'showCalendarBtn');
+    document.getElementById('addTransactionBtn').style.display = 'none';
+    document.getElementById('manageCategoriesBtn').style.display = 'none';
 });
 
 document.getElementById('showStatsBtn').addEventListener('click', function() {
     showSection('statsView', 'showStatsBtn');
+    document.getElementById('addTransactionBtn').style.display = 'none';
+    document.getElementById('manageCategoriesBtn').style.display = 'none';
 });
 
 
@@ -1198,13 +1236,14 @@ document.getElementById('toggleCardFormBtn').addEventListener('click', function(
 });
 
 // Función para añadir y mostrar movimientos
-function addTransaction1(type, amount) {
+function addTransaction1(type, amount, date, comment) {
     let transactions1 = JSON.parse(localStorage.getItem('transactions1')) || [];
-    let transaction1 = { id: Date.now(), type, amount, date: new Date().toLocaleString() };
+    let transaction1 = { id: Date.now(), type, amount, date, comment };
     transactions1.push(transaction1);
     localStorage.setItem('transactions1', JSON.stringify(transactions1));
     displayTransactions();
 }
+
 
 // Función para eliminar un movimiento
 function deleteTransaction(id) {
@@ -1219,8 +1258,22 @@ function deleteTransaction(id) {
     }
 }
 
+// Añadir un botón para eliminar los datos de la tarjeta
+document.getElementById('cardInfo').innerHTML += `
+    <button id="deleteCardBtn" class="delete-btn">Eliminar Tarjeta</button>
+`;
 
-// Mostrar la información al cargar la página si ya existe una tarjeta y movimientos en localStorage
+// Evento para eliminar los datos de la tarjeta
+document.getElementById('deleteCardBtn').addEventListener('click', function() {
+    if (confirm('¿Estás seguro de que quieres eliminar los datos de la tarjeta?')) {
+        localStorage.removeItem('creditCard');
+        document.getElementById('cardInfo').innerHTML = '<p>No hay tarjeta registrada</p>';
+        document.getElementById('debtInfo').innerHTML = '';
+        document.getElementById('addCreditCardForm').style.display = 'block';
+    }
+});
+
+// Asegurarse de que displayCardInfo se llame al cargar la página
 window.onload = function() {
     displayCardInfo();
     displayDebtInfo();
