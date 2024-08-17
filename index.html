@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mai Money</title>
-    <link rel="icon" href="img/money-bag.ico" type="image/x-icon">
+    <link rel="icon" href="img/flaticon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
@@ -78,10 +78,10 @@
                 </div>
             </section>
         </main>
-
-        <button id="addTransactionBtn" class="float-btn">+</button>
         <button id="manageCategoriesBtn" class="float-btn">C</button>
-        <button id="modeToggle" class="mode-toggle"><span class="mode-icon"></span></button>
+        <button id="addTransactionBtn" class="float-btn">+</button>
+        <button id="settingsBtn" class="float-btn settings-btn">S</button>
+    
     </div>
 
     <div id="addTransactionModal" class="modal">
@@ -203,17 +203,19 @@
         </div>
     </div>
     <br>
-<nav class="icon-nav">
-<!-- Nuevos botones para importar y exportar y eliminar -->
-<button id="exportDataBtn" class="nav-button" onclick="exportData()">Exportar Datos</button>
-<button id="importDataBtn" class="nav-button" onclick="handleImportClick()">Importar Datos</button>
-<input type="file" id="importInput" style="display: none;" onchange="importData(event)">
-<button onclick="confirmDataDeletion()" class="nav-button" class="btn btn-danger">Eliminar Todos los Datos</button>
-</nav>
 
 
-    
-    
+
+<div id="settingsPopup" class="popup">
+    <div class="popup-content">
+        <h2>Ajustes</h2>
+        <button id="exportBtn">Exportar Datos</button>
+        <button id="importBtn">Importar Datos</button>
+        <input type="file" id="importInput" style="display: none;" onchange="importData(event)">
+        <button id="deleteAllDataBtn">Eliminar Todos los Datos</button>
+        <button id="modeToggle" >Modo oscuro y claro<span class="mode-icon"></span></button>
+    </div>
+</div>
 
       <script src="javascripts.js"></script>
 </body>
