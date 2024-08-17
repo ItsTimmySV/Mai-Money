@@ -1,1402 +1,1148 @@
-let transactions = [];
-let editingId = null;
-let monthlyChartInstance = null;
-let yearlyChartInstance = null;
-let categoryChartInstance = null;
-let categories = ['Comida', 'Transporte', 'Entretenimiento', 'Servicios', 'Otros'];
-let calendarInstance = null;
-let archivedMonths = {};
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #f44336;
+    --background-color: #f0f0f0;
+    --card-background: #ffffff;
+    --text-color: #333333;
+    --border-radius: 10px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Modo oscuro */
+.dark-mode {
+    --primary-color: #66bb6a;
+    --secondary-color: #ff5252;
+    --background-color: #121212;
+    --card-background: #1e1e1e;
+    --text-color: #ffffff;
+    --box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+nav button {
+    padding: 5px 10px;
+    margin: 0 10px;
+    background-color: var(--card-background);
+    color: var(--text-color);
+    border: none;
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: var(--box-shadow);
+}
+
+nav button:hover, nav button.active {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.summary {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.balance, .income, .expense {
+    background-color: var(--card-background);
+    padding: 10px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    flex: 1;
+    margin: 0 10px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.balance:hover, .income:hover, .expense:hover {
+    transform: translateY(-5px);
+}
+
+.balance h2, .income h3, .expense h3 {
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.balance p, .income p, .expense p {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.transaction-list {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+ul {
+    list-style-type: none;
+}
+
+li {
+    background-color: var(--background-color);
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: var(--border-radius);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+li:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow);
+}
+
+.income-item {
+    border-left: 5px solid var(--primary-color);
+}
+
+.expense-item {
+    border-left: 5px solid var(--secondary-color);
+}
+
+.transaction-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.transaction-info strong {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.transaction-info small {
+    color: #777;
+    display: block;
+    margin-top: 5px;
+}
 
 
+.transaction-amount {
+    flex: 1;
+}
 
-// DOM Elements
-const transactionsView = document.getElementById('transactionsView');
-const statsView = document.getElementById('statsView');
-const showTransactionsBtn = document.getElementById('showTransactionsBtn');
-const showStatsBtn = document.getElementById('showStatsBtn');
-const addTransactionBtn = document.getElementById('addTransactionBtn');
-const addTransactionModal = document.getElementById('addTransactionModal');
-const editModal = document.getElementById('editModal');
-const addTransactionForm = document.getElementById('addTransactionForm');
-const editTransactionForm = document.getElementById('editTransactionForm');
-const cancelAddBtn = document.getElementById('cancelAddBtn');
-const cancelEditBtn = document.getElementById('cancelEditBtn');
+.transaction-actions {
+    display: none; /* Oculta los botones por defecto */
+}
 
 
+.transaction-date {
+    font-size: 0.9em;
+    color: #777;
+}
 
-// Event Listeners
-document.getElementById('addCategoryForm').addEventListener('submit', addCategory);
-showTransactionsBtn.addEventListener('click', showTransactions);
-showStatsBtn.addEventListener('click', showStats);
-addTransactionBtn.addEventListener('click', openAddTransactionModal);
-cancelAddBtn.addEventListener('click', closeAddTransactionModal);
-cancelEditBtn.addEventListener('click', closeEditModal);
-addTransactionForm.addEventListener('submit', handleAddTransaction);
-editTransactionForm.addEventListener('submit', handleEditTransaction);
+.transaction-actions.show {
+    display: flex; /* Muestra los botones cuando se agrega la clase 'show' */
+}
+
+.transaction-amount.hidden {
+    display: none; /* Oculta el monto cuando se agrega la clase 'hidden' */
+}
+
+.transaction-details {
+    display: flex;
+    align-items: center;
+}
+
+.edit-btn, .delete-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.edit-btn:hover, .delete-btn:hover {
+    opacity: 0.8;
+}
+
+.float-btn {
+    position: fixed;
+    width: 40px; /* Tamaño reducido */
+    height: 40px; /* Tamaño reducido */
+    bottom: 40px;
+    right: 40px;
+    background-color: var(--primary-color);
+    color: #FFF;
+    border-radius: 50%;
+    text-align: center;
+    box-shadow: var(--box-shadow);
+    font-size: 18px; /* Tamaño del texto reducido */
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.float-btn:hover {
+    background-color: #45a049;
+    transform: scale(1.1);
+}
 
 
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
 
-// Funciones de carga y guardado
-function loadTransactions() {
-    const savedTransactions = localStorage.getItem('transactions');
-    if (savedTransactions) {
-        transactions = JSON.parse(savedTransactions);
+.modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+}
+
+.modal-content button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.modal-content button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+.charts-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.chart-wrapper {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    flex: 1 1 calc(50% - 10px);
+    min-width: 300px;
+}
+
+@media (max-width: 768px) {
+    .summary {
+        flex-direction: column;
+    }
+
+    .balance, .income, .expense {
+        margin: 0 0 10px 0;
+    }
+
+    .chart-wrapper {
+        flex: 1 1 100%;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .add-category-form {
+        flex-direction: column;
+    }
+
+    .add-category-form input,
+    .add-category-form button {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .category-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .category-item button {
+        margin-top: 10px;
+        align-self: flex-end;
     }
 }
 
-
-
-// Save transactions to local storage
-function saveTransactions() {
-    localStorage.setItem('transactions', JSON.stringify(transactions));
-}
-
-
-// Handle adding a new transaction
-function handleAddTransaction(e) {
-    e.preventDefault();
-    const amount = parseFloat(document.getElementById('amount').value);
-    const dateInput = document.getElementById('date').value;
-    const type = document.getElementById('type').value;
-    const category = document.getElementById('category').value;
-    const comment = document.getElementById('comment').value;
-
-    const date = new Date(dateInput + 'T00:00:00');
-
-    if (!isNaN(amount) && category) {
-        const transaction = {
-            id: Date.now(),
-            amount,
-            date: date.toISOString(),
-            type,
-            category,
-            comment
-        };
-
-        transactions.push(transaction);
-        saveTransactions();
-        updateUI();
-        closeAddTransactionModal();
-        showTransactions();
-        clearForm();
-    }
-}
-
-
-// Handle editing a transaction
-function handleEditTransaction(e) {
-    e.preventDefault();
-    const amount = parseFloat(document.getElementById('editAmount').value);
-    const dateInput = document.getElementById('editDate').value;
-    const type = document.getElementById('editType').value;
-    const category = document.getElementById('editCategory').value;
-    const comment = document.getElementById('editComment').value;
-
-    if (amount && dateInput && category) {
-        const date = new Date(dateInput + 'T00:00:00'); // Asegúrate de que la fecha esté en formato UTC
-
-        const index = transactions.findIndex(t => t.id === editingId);
-        if (index !== -1) {
-            transactions[index] = { 
-                ...transactions[index], 
-                amount, 
-                date: date.toISOString(), // Asegúrate de que la fecha esté en formato UTC
-                type, 
-                category, 
-                comment 
-            };
-            saveTransactions();
-            updateUI();
-            closeEditModal();
-        }
-    }
-}
-
-// Update UI with current transactions
-function updateUI() {
-    const transactionList = document.getElementById('transactions');
-    const incomeTotal = document.getElementById('income-total');
-    const expenseTotal = document.getElementById('expense-total');
-    const balanceElement = document.getElementById('total');
-
-    if (!transactionList) {
-        console.error('Element with id "transactions" not found');
-        return;
-    }
-
-    transactionList.innerHTML = '';
-    let income = 0;
-    let expense = 0;
-
-    transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    transactions.forEach(transaction => {
-        const li = document.createElement('li');
-        li.classList.add(transaction.type === 'income' ? 'income-item' : 'expense-item', 'transaction-item');
-        li.innerHTML = `
-            <div class="transaction-info">
-                <strong>${transaction.category}</strong>
-                <small>${formatDate(transaction.date)}${transaction.comment ? ' - ' + transaction.comment : ''}</small>
-            </div>
-            <div class="transaction-details">
-                <div class="transaction-amount">
-                    <span class="amount ${transaction.type}">${transaction.type === 'income' ? '+' : '-'}$${Math.abs(parseFloat(transaction.amount)).toFixed(2)}</span>
-                </div>
-                <div class="transaction-actions">
-                    <button class="edit-btn" onclick="editTransaction(${transaction.id})">Editar</button>
-                    <button class="delete-btn" onclick="deleteTransaction1(${transaction.id})">Eliminar</button>
-                </div>
-            </div>
-        `;
-        li.addEventListener('click', function() {
-            const amount = this.querySelector('.transaction-amount');
-            const actions = this.querySelector('.transaction-actions');
-
-            if (actions.classList.contains('show')) {
-                actions.classList.remove('show');
-                amount.classList.remove('hidden');
-            } else {
-                actions.classList.add('show');
-                amount.classList.add('hidden');
-            }
-        });
-        transactionList.appendChild(li);
-
-        if (transaction.type === 'income') {
-            income += parseFloat(transaction.amount);
-        } else {
-            expense += parseFloat(transaction.amount);
-        }
-    });
-
-    const balance = income - expense;
-
-    if (incomeTotal) incomeTotal.textContent = `$${income.toFixed(2)}`;
-    if (expenseTotal) expenseTotal.textContent = `$${expense.toFixed(2)}`;
-    if (balanceElement) balanceElement.textContent = `$${balance.toFixed(2)}`;
-}
-
-// Asegurarse de que initApp llama a clearForm
-function initApp() {
-    loadTransactions();
-    updateUI();
-    showTransactions();
-    clearForm(); // Esto establecerá la fecha de hoy en el formulario al cargar la aplicación
-}
-
-// Llamar a initApp cuando el DOM esté completamente cargado
-document.addEventListener('DOMContentLoaded', initApp);
-
-
-// Delete a transaction
-function deleteTransaction1(id) {
-    transactions = transactions.filter(t => t.id !== id);
-    saveTransactions();
-    updateUI();
-}
-
-// Edit a transaction
-function editTransaction(id) {
-    const transaction = transactions.find(t => t.id === id);
-    if (transaction) {
-        editingId = id;
-        document.getElementById('editAmount').value = transaction.amount;
-        document.getElementById('editDate').value = transaction.date.split('T')[0];
-        document.getElementById('editType').value = transaction.type;
-        document.getElementById('editCategory').value = transaction.category;
-        document.getElementById('editComment').value = transaction.comment || '';
-        document.getElementById('editModal').style.display = 'block';
-    }
-}
-// Close the edit modal
-function closeEditModal() {
-    editModal.style.display = 'none';
-    editingId = null;
-}
-
-
-// Asegurarse de que la fecha se establece correctamente al abrir el modal de agregar transacción
-function openAddTransactionModal() {
-    addTransactionModal.style.display = 'block';
-    clearForm(); // Esto establecerá la fecha de hoy y limpiará los otros campos
-}
-
-
-
-// Close the add transaction modal
-function closeAddTransactionModal() {
-    addTransactionModal.style.display = 'none';
-    clearForm();
-}
-
-// Show transactions view
-function showTransactions() {
-    const transactionsView = document.getElementById('transactionsView');
-    const statsView = document.getElementById('statsView');
-    const calendarView = document.getElementById('calendarView');
-    
-    transactionsView.style.display = 'block';
-    statsView.style.display = 'none';
-    calendarView.style.display = 'none';
-    
-    document.getElementById('showTransactionsBtn').classList.add('active');
-    document.getElementById('showStatsBtn').classList.remove('active');
-    document.getElementById('showCalendarBtn').classList.remove('active');
-    
-    updateUI();
-}
-
-// Show the stats view
-function showStats() {
-    const transactionsView = document.getElementById('transactionsView');
-    const statsView = document.getElementById('statsView');
-    const calendarView = document.getElementById('calendarView');
-    
-    transactionsView.style.display = 'none';
-    statsView.style.display = 'block';
-    calendarView.style.display = 'none';
-    
-    document.getElementById('showTransactionsBtn').classList.remove('active');
-    document.getElementById('showStatsBtn').classList.add('active');
-    document.getElementById('showCalendarBtn').classList.remove('active');
-
-        // Mostrar animación de carga
-        const monthlyChartContainer = document.getElementById('monthlyChart').parentNode;
-        const yearlyChartContainer = document.getElementById('yearlyChart').parentNode;
-        const categoryChartContainer = document.getElementById('categoryChart').parentNode;
-        
-        monthlyChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico mensual...</div>';
-        yearlyChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico anual...</div>';
-        categoryChartContainer.innerHTML = '<div class="loading-animation">Cargando gráfico de categorías...</div>';
-    
-        // Simular un retraso para la animación (puedes ajustar este tiempo)
-        setTimeout(() => {
-            // Recrear los canvas para los gráficos
-            monthlyChartContainer.innerHTML = '<canvas id="monthlyChart"></canvas>';
-            yearlyChartContainer.innerHTML = '<canvas id="yearlyChart"></canvas>';
-            categoryChartContainer.innerHTML = '<canvas id="categoryChart"></canvas>';
-    
-            // Volver a crear los gráficos
-            createChart('monthlyChart', 'Ingresos y Gastos por Mes', getMonthlyData(), 'monthly');
-            createChart('yearlyChart', 'Ingresos y Gastos por Año', getYearlyData(), 'yearly');
-            createCategoryChart(); // Actualiza o crea el gráfico de categorías
-        }, 10); // 1 segundo de retraso, ajusta según sea necesario
-    
-    
-    // Actualizar todos los gráficos
-    updateCharts();
-}
-
-// Crear o actualizar el gráfico de categorías
-function createCategoryChart() {
-    const ctx = document.getElementById('categoryChart').getContext('2d');
-    const isDarkMode = document.body.classList.contains('dark-mode');
-
-    const categoryData = categories.map(category => {
-        return transactions
-            .filter(transaction => transaction.category === category)
-            .reduce((sum, transaction) => sum + transaction.amount, 0);
-    });
-
-    categoryChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: categories,
-            datasets: [{
-                data: categoryData,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.6)',
-                    'rgba(54, 162, 235, 0.6)',
-                    'rgba(255, 206, 86, 0.6)',
-                    'rgba(75, 192, 192, 0.6)',
-                    'rgba(153, 102, 255, 0.6)'
-                ],
-                borderColor: isDarkMode ? '#fff' : '#666',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: isDarkMode ? '#fff' : '#666'
-                    }
-                }
-            }
-        }
-    });
-}
-
-
-// Función para actualizar los gráficos
-function updateCharts() {
-    createCategoryChart(); // Asegúrate de que esta función esté actualizando el gráfico correctamente
-    
-    const isDarkMode = document.body.classList.contains('dark-mode');
-
-    if (monthlyChartInstance) {
-        updateChartColors(monthlyChartInstance, isDarkMode);
-        monthlyChartInstance.update(); // Asegúrate de actualizar el gráfico mensual
-    } else {
-        createChart('monthlyChart', 'Ingresos y Gastos por Mes', getMonthlyData(), 'monthly');
-    }
-
-    if (yearlyChartInstance) {
-        updateChartColors(yearlyChartInstance, isDarkMode);
-        yearlyChartInstance.update(); // Asegúrate de actualizar el gráfico anual
-    } else {
-        createChart('yearlyChart', 'Ingresos y Gastos por Año', getYearlyData(), 'yearly');
-    }
-}
-
-// Get monthly data for the charts
-function getMonthlyData() {
-    const data = {};
-    const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    
-    transactions.forEach(transaction => {
-        const date = new Date(transaction.date);
-        const monthYear = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-        if (!data[monthYear]) {
-            data[monthYear] = { income: 0, expense: 0 };
-        }
-        if (transaction.type === 'income') {
-            data[monthYear].income += transaction.amount;
-        } else {
-            data[monthYear].expense += transaction.amount;
-        }
-    });
-
-    return Object.entries(data)
-        .sort(([a], [b]) => {
-            const [monthA, yearA] = a.split(' ');
-            const [monthB, yearB] = b.split(' ');
-            return new Date(yearB, monthNames.indexOf(monthB)) - new Date(yearA, monthNames.indexOf(monthA));
-        })
-        .slice(-12);  // Últimos 12 meses
-}
-
-
-
-
-// Get yearly data for the charts
-function getYearlyData() {
-    const data = {};
-    transactions.forEach(transaction => {
-        const year = new Date(transaction.date).getFullYear();
-        if (!data[year]) {
-            data[year] = { income: 0, expense: 0 };
-        }
-        if (transaction.type === 'income') {
-            data[year].income += transaction.amount;
-        } else {
-            data[year].expense += transaction.amount;
-        }
-    });
-    return Object.entries(data)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .slice(-5);  // Últimos 5 años
-}
-
-// Aplicar el modo oscuro si estaba activo anteriormente
-if (localStorage.getItem('darkMode') === 'true') {
-    document.body.classList.add('dark-mode');
-}
-
-const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-// Create a chart
-// Modificar la función createChart para incluir la lógica de colores
-function createChart(canvasId, title, data, chartType) {
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    const isDarkMode = document.body.classList.contains('dark-mode');
-
-    // Formatear etiquetas para el gráfico mensual
-    const labels = data.map(([label]) => {
-        if (chartType === 'monthly') {
-            const [month] = label.split(' ');
-            return month;  // Solo retorna el mes
-        }
-        return label;
-    });
-
-    const chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Ingresos',
-                    data: data.map(([_, values]) => values.income),
-                    backgroundColor: isDarkMode ? 'rgba(102, 187, 106, 0.6)' : 'rgba(75, 192, 192, 0.6)',
-                    borderColor: isDarkMode ? 'rgba(102, 187, 106, 1)' : 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Gastos',
-                    data: data.map(([_, values]) => values.expense),
-                    backgroundColor: isDarkMode ? 'rgba(255, 82, 82, 0.6)' : 'rgba(255, 99, 132, 0.6)',
-                    borderColor: isDarkMode ? 'rgba(255, 82, 82, 1)' : 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    grid: {
-                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-                    },
-                    ticks: {
-                        color: isDarkMode ? '#fff' : '#666',
-                    },
-                },
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-                    },
-                    ticks: {
-                        color: isDarkMode ? '#fff' : '#666',
-                    },
-                }
-            },
-            plugins: {
-                title: {
-                    display: true,
-                    text: title,
-                    color: isDarkMode ? '#fff' : '#333'
-                },
-                legend: {
-                    labels: {
-                        color: isDarkMode ? '#fff' : '#666'
-                    }
-                }
-            }
-        }
-    });
-
-    // Guardar la instancia del gráfico
-    if (chartType === 'monthly') {
-        monthlyChartInstance = chartInstance;
-    } else if (chartType === 'yearly') {
-        yearlyChartInstance = chartInstance;
-    }
-
-    return chartInstance;
-}
-
-
-
-
-
-
-
-// Función para limpiar el formulario después de agregar una transacción
-function clearForm() {
-    document.getElementById('amount').value = '';
-    document.getElementById('category').value = '';
-    document.getElementById('type').value = 'income';
-    document.getElementById('comment').value = '';
-    
-    // Establecer la fecha de hoy
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date').value = today;
-}
-
-
-
-// Format date to a more readable format with full date, using the local format of El Salvador
-function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/El_Salvador' };
-    return new Date(dateString).toLocaleDateString('es-SV', options);
-}
-
-
-
-// Get month name
-function getMonthName(monthIndex) {
-    const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    return months[monthIndex];
-}
-
-// Initialize the application
-loadTransactions();
-updateUI();
-showTransactions();
-
-// Función para detectar si es un dispositivo móvil
-function isMobileDevice() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('settingsBtn').addEventListener('click', toggleSettingsPopup);
-
-    loadCategories();
-
-    if (isMobileDevice()) {
-        document.body.classList.add('mobile-device');
-        console.log('Usuario en dispositivo móvil');
-        // Aquí puedes añadir cualquier código específico para dispositivos móviles
-    } else {
-        document.body.classList.add('desktop-device');
-        console.log('Usuario en PC');
-        // Aquí puedes añadir cualquier código específico para PC
-    }
-
-    const closeDailySummaryBtn = document.getElementById('closeDailySummary');
-    if (closeDailySummaryBtn) {
-        closeDailySummaryBtn.addEventListener('click', function() {
-            const dailyTransactionsSummary = document.getElementById('dailyTransactionsSummary');
-            if (dailyTransactionsSummary) {
-                dailyTransactionsSummary.style.display = 'none';
-            }
-        });
-    } else {
-        console.error("Elemento con id 'closeDailySummary' no encontrado");
-    }
-
-        // Set up event listeners
-        const manageCategoriesBtn = document.getElementById('manageCategoriesBtn');
-        if (manageCategoriesBtn) {
-            manageCategoriesBtn.addEventListener('click', showCategoryManagementModal);
-        } else {
-            console.error("Element with id 'manageCategoriesBtn' not found");
-        }
-    
-        const closeCategoryManagementBtn = document.getElementById('closeCategoryManagementBtn');
-        if (closeCategoryManagementBtn) {
-            closeCategoryManagementBtn.addEventListener('click', () => {
-                document.getElementById('categoryManagementModal').style.display = 'none';
-            });
-        } else {
-            console.error("Element with id 'closeCategoryManagementBtn' not found");
-        }
-    
-        const addCategoryForm = document.getElementById('addCategoryForm');
-        if (addCategoryForm) {
-            addCategoryForm.addEventListener('submit', addCategory);
-        } else {
-            console.error("Element with id 'addCategoryForm' not found");
-        }
-
-    const showCalendarBtn = document.getElementById('showCalendarBtn');
-    const calendarView = document.getElementById('calendarView');
-
-    showCalendarBtn.addEventListener('click', function() {
-        transactionsView.style.display = 'none';
-        statsView.style.display = 'none';
-        calendarView.style.display = 'block';
-
-        showTransactionsBtn.classList.remove('active');
-        showStatsBtn.classList.remove('active');
-        showCalendarBtn.classList.add('active');
-
-        initializeCalendar();
-    });
-
-    let currentDate = new Date();
-
-    function initializeCalendar() {
-        updateCalendarHeader();
-        renderCalendar();
-        
-        document.getElementById('prevMonth').addEventListener('click', () => {
-          currentDate.setMonth(currentDate.getMonth() - 1);
-          renderCalendar();
-        });
-        
-        document.getElementById('nextMonth').addEventListener('click', () => {
-          currentDate.setMonth(currentDate.getMonth() + 1);
-          renderCalendar();
-        });
-        
-        document.getElementById('closeDailySummary').addEventListener('click', () => {
-          document.getElementById('dailyTransactionsSummary').style.display = 'none';
-        });
-      }
-
-      function updateCalendarHeader() {
-        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ];
-        document.getElementById('currentMonthYear').textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-      }
-
-      function renderCalendar() {
-        const calendarEl = document.getElementById('calendar');
-        calendarEl.innerHTML = '';
-        
-        const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-        
-        // Días de la semana abreviados
-        const daysOfWeek = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
-        
-        const calendarGreen = 'rgb(102, 187, 106)'; // Define el color verde constante
-
-        daysOfWeek.forEach(day => {
-          const dayHeader = document.createElement('div');
-          dayHeader.className = 'calendar-day-header';
-          dayHeader.textContent = day;
-          dayHeader.style.color = calendarGreen; // Usa el color verde constante
-          calendarEl.appendChild(dayHeader);
-        });
-        
-        for (let i = 0; i < firstDay.getDay(); i++) {
-          calendarEl.appendChild(document.createElement('div'));
-        }
-        
-        for (let i = 1; i <= lastDay.getDate(); i++) {
-          const dayEl = document.createElement('div');
-          dayEl.className = 'calendar-day';
-          dayEl.innerHTML = `<span class="day-number">${i}</span>`;
-          
-          const currentDayTransactions = getTransactionsForDay(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
-          if (currentDayTransactions.length > 0) {
-            const summary = document.createElement('div');
-            summary.className = 'transaction-summary';
-            summary.textContent = `${currentDayTransactions.length}`;
-            dayEl.appendChild(summary);
-          }
-          
-          dayEl.addEventListener('click', () => showDailyTransactions(new Date(currentDate.getFullYear(), currentDate.getMonth(), i)));
-          calendarEl.appendChild(dayEl);
-        }
-        
-        updateCalendarHeader();
-        
-      }
-
-      function getTransactionsForDay(date) {
-        return transactions.filter(t => {
-          const transactionDate = new Date(t.date);
-          return transactionDate.getDate() === date.getDate() &&
-                 transactionDate.getMonth() === date.getMonth() &&
-                 transactionDate.getFullYear() === date.getFullYear();
-        });
-      }
-
-
-
-
-
-    function generateCalendarEvents() {
-        return transactions.map(transaction => ({
-            title: `${transaction.type === 'income' ? '+' : '-'}$${transaction.amount}`,
-            start: transaction.date,
-            allDay: true,
-            color: transaction.type === 'income' ? '#4CAF50' : '#f44336'
-        }));
-    }
-    
-    function showDailyTransactions(date) {
-        const dailyTransactions = getTransactionsForDay(date);
-        const dailyTransactionsList = document.getElementById('dailyTransactionsList');
-        const selectedDateEl = document.getElementById('selectedDate');
-        const dailyTotalEl = document.getElementById('dailyTotal');
-        
-        selectedDateEl.textContent = `Transacciones del ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-        dailyTransactionsList.innerHTML = '';
-        
-        let dailyTotal = 0;
-        
-        dailyTransactions.forEach(t => {
-          const transactionEl = document.createElement('div');
-          transactionEl.className = `transaction-item ${t.type}`;
-          transactionEl.innerHTML = `
-            <span>${t.category}</span>
-            <span>${t.type === 'income' ? '+' : '-'}$${Math.abs(t.amount).toFixed(2)}</span>
-          `;
-          dailyTransactionsList.appendChild(transactionEl);
-          
-          dailyTotal += t.type === 'income' ? t.amount : -t.amount;
-        });
-        
-        dailyTotalEl.textContent = `Total del día: $${dailyTotal.toFixed(2)}`;
-        document.getElementById('dailyTransactionsSummary').style.display = 'block';
-      }
-
-      // Asegúrate de llamar a esta función cuando se cargue la página
-document.addEventListener('DOMContentLoaded', initializeCalendar);
-
-
-// Modifica la función existente showCalendar para usar la nueva vista
-function showCalendar() {
-    document.getElementById('transactionsView').style.display = 'none';
-    document.getElementById('statsView').style.display = 'none';
-    document.getElementById('calendarView').style.display = 'block';
-    
-    document.getElementById('showTransactionsBtn').classList.remove('active');
-    document.getElementById('showStatsBtn').classList.remove('active');
-    document.getElementById('showCalendarBtn').classList.add('active');
-    
-    renderCalendar();
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 5px;
+    border-radius: var(--border-radius);
+  }
+
+  .income {
+    background-color: rgba(0, 255, 0, 0.1);
   }
   
-  // Asegúrate de que el botón del calendario llame a esta función
-  document.getElementById('showCalendarBtn').addEventListener('click', showCalendar);
-    
-    document.getElementById('closeDailyTransactions').addEventListener('click', function() {
-        document.getElementById('dailyTransactions').style.display = 'none';
-    });
-    
-    function updateArchivedMonths() {
-        const currentDate = moment();
-        archivedMonths = {};
-    
-        transactions.forEach(transaction => {
-            const transactionDate = moment(transaction.date);
-            if (transactionDate.isBefore(currentDate, 'month')) {
-                const key = transactionDate.format('YYYY-MM');
-                if (!archivedMonths[key]) {
-                    archivedMonths[key] = { income: 0, expense: 0 };
-                }
-                if (transaction.type === 'income') {
-                    archivedMonths[key].income += transaction.amount;
-                } else {
-                    archivedMonths[key].expense += transaction.amount;
-                }
-            }
-        });
-    
-        const archivedMonthsList = document.getElementById('archivedMonthsList');
-        archivedMonthsList.innerHTML = '';
-    
-        Object.entries(archivedMonths).forEach(([key, data]) => {
-            const li = document.createElement('li');
-            li.textContent = `${moment(key, 'YYYY-MM').format('MMMM YYYY')}: Ingresos: $${data.income.toFixed(2)}, Gastos: $${data.expense.toFixed(2)}`;
-            archivedMonthsList.appendChild(li);
-        });
+  .expense {
+    background-color: rgba(255, 0, 0, 0.1);
+  }
+
+.transaction-item:hover {
+    background-color: #f5f5f5;
+}
+
+.transaction-item button {
+    margin-right: 10px; /* Agrega un margen derecho al botón de editar */
+}
+
+.transaction-item button:last-child {
+    margin-right: 0; /* Asegúrate de que el último botón (Eliminar) no tenga margen adicional */
+}
+
+.app-name {
+    font-size: 1.2em; /* Tamaño de fuente pequeño */
+    font-weight: 700; /* Negrita */
+    color: var(--primary-color);
+    text-transform: uppercase;
+    margin-bottom: 5px; /* Espacio más pequeño debajo del título */
+    letter-spacing: 1px; /* Espaciado entre letras más sutil */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Sombra más ligera */
+}
+
+/* Estilos para el botón de cambio de modo */
+.mode-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    background-color: var(--text-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s;
+    z-index: 1000;
+}
+
+
+.mode-toggle:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Ajustes adicionales para el modo oscuro */
+.dark-mode .transaction-item:hover {
+    background-color: #2a2a2a;
+}
+
+.dark-mode .edit-btn {
+    background-color: #66bb6a;
+}
+
+.dark-mode .delete-btn {
+    background-color: #ff5252;
+}
+
+.loading-animation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px; /* Ajusta según sea necesario */
+    font-size: 1.2em;
+    color: var(--text-color);
+}
+
+.loading-animation::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--text-color);
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    margin-left: 10px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.mode-icon {
+    width: 20px;
+    height: 20px;
+    background-color: var(--background-color);
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.dark-mode .mode-toggle {
+    background-color: var(--background-color);
+}
+
+.dark-mode .mode-icon {
+    background-color: var(--text-color);
+}
+
+.modal-content select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    background-color: var(--card-background);
+    color: var(--text-color);
+}
+
+.modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    resize: vertical;
+    min-height: 100px;
+}
+
+.category-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    transition: background-color 0.3s ease;
+}
+
+.category-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.category-item span {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.category-item button {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.category-item button:hover {
+    background-color: #d32f2f;
+}
+
+.add-category-form {
+    display: flex;
+    margin-top: 20px;
+}
+
+.add-category-form input {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+#closeCategoryManagementBtn {
+    margin-top: 20px;
+    width: 100%;
+}
+
+#manageCategoriesBtn {
+    bottom: 100px;
+    right: 40px;
+}
+
+#addCategoryForm {
+    display: flex;
+    margin-top: 20px;
+}
+
+#newCategoryName {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+/* Estilos para la vista del calendario */
+#calendarView {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+
+#calendarControls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+
+  .calendar-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 7px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .calendar-btn:hover {
+    background-color: var(--primary-color-dark);
+  }
+
+  #currentMonthYear {
+    font-size: 1.2em;
+    color: var(--text-color);
+  }
+  
+
+
+  #calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+
+  .calendar-day {
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    padding: 10px;
+    min-height: 100px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .calendar-day:hover {
+    background-color: var(--primary-color-light);
+  }
+  
+  .calendar-day-header {
+    font-weight: bold;
+    text-align: center;
+    padding: 5px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius);
+  }
+
+  .day-number {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .transaction-summary {
+    font-size: 0.8em;
+  }
+  
+  #dailyTransactionsSummary {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+  }
+  
+  #dailyTransactionsSummary .modal-content {
+    background-color: var(--card-background);
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+  
+  #closeDailySummary {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+  }
+  
+  #closeDailySummary:hover {
+    background-color: var(--secondary-color-dark);
+  }
+
+
+.fc-toolbar {
+    flex-wrap: wrap;
+}
+
+.fc-toolbar-chunk {
+    margin-bottom: 5px;
+}
+
+.fc-button {
+    padding: 0.3em 0.6em;
+    font-size: 0.9em;
+}
+
+.fc-day-grid-container {
+    height: auto !important;
+}
+
+.fc-event {
+    cursor: pointer;
+}
+
+.fc-day-grid-event .fc-content {
+    white-space: normal;
+}
+
+#dailyTransactions {
+    display: none;
+}
+
+#archivedMonths {
+    margin-top: 20px;
+}
+
+#archivedMonthsList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#archivedMonthsList li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+}
+
+/* Ajustes para el modo oscuro */
+.dark-mode .fc-unthemed th,
+.dark-mode .fc-unthemed td,
+.dark-mode .fc-unthemed thead,
+.dark-mode .fc-unthemed tbody,
+.dark-mode .fc-unthemed .fc-divider,
+.dark-mode .fc-unthemed .fc-row,
+.dark-mode .fc-unthemed .fc-content,
+.dark-mode .fc-unthemed .fc-popover,
+.dark-mode .fc-unthemed .fc-list-view,
+.dark-mode .fc-unthemed .fc-list-heading td {
+    border-color: #555;
+}
+
+.dark-mode .fc-unthemed .fc-today {
+    background: #333;
+}
+
+#calendar {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.fc-unthemed th,
+.fc-unthemed td,
+.fc-unthemed thead,
+.fc-unthemed tbody,
+.fc-unthemed .fc-divider,
+.fc-unthemed .fc-row,
+.fc-unthemed .fc-content,
+.fc-unthemed .fc-popover,
+.fc-unthemed .fc-list-view,
+.fc-unthemed .fc-list-heading td {
+    border-color: var(--text-color);
+}
+
+.fc-unthemed .fc-today {
+    background: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.fc-event {
+    border-radius: 3px;
+    border: none;
+    padding: 2px 5px;
+    margin-bottom: 2px;
+}
+
+.fc-day-grid-event .fc-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mobile-device .some-element {
+    /* Estilos para dispositivos móviles */
+    font-size: 14px;
+}
+
+.desktop-device .some-element {
+    /* Estilos para PC */
+    font-size: 16px;
+}
+
+.calendar-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+  
+  .calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: var(--grid-color);
+    border: 1px solid var(--grid-color);
+    border-radius: 8px;
+  }
+  
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .calendar-day-header, .calendar-day {
+    padding: 5px;
+    text-align: center;
+    background-color: var(--day-bg);
+  }
+  
+  .calendar-day-header {
+    font-weight: bold;
+    background-color: var(--day-header-bg);
+  }
+  
+  .calendar-day {
+    min-height: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+  }
+  
+  .calendar-day:hover {
+    background-color: var(--day-hover);
+  }
+  
+  .transaction-summary {
+    font-size: 0.8em;
+    margin-top: 2px;
+  }
+  
+  /* Estilos responsivos para móviles */
+  @media screen and (max-width: 600px) {
+    .calendar {
+      font-size: 12px;
+    }
+  
+    .calendar-day-header, .calendar-day {
+      padding: 2px;
+    }
+  
+    .calendar-day {
+      min-height: 30px;
+    }
+  
+    .transaction-summary {
+      font-size: 10px;
+    }
+  
+    .calendar-header {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .calendar-header button {
+      margin: 5px 0;
+      background-color: var(--header-bg);
+      color: var(--header-text);
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+  }
+  
+  /* Ajustes adicionales para pantallas muy pequeñas */
+  @media screen and (max-width: 320px) {
+    .calendar-day-header {
+      font-size: 10px;
+    }
+  
+    .calendar-day {
+      font-size: 11px;
+      min-height: 25px;
+    }
+  }
+
+
+   /* Credit card section */
+
+   .card-details {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 30px;
+}
+
+.card-stats {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+#addCreditCardForm input, #addCreditCardForm button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid #ddd;
+}
+
+#addCreditCardForm button {
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#addCreditCardForm button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+.transaction-actions1 {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.transaction-actions1 button {
+    padding: 10px;
+    width: 48%;
+    border-radius: var(--border-radius);
+    border: 1px solid #ddd;
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.transaction-actions1 button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+
+/* Botón para agregar tarjeta */
+#toggleCardFormBtn {
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+}
+
+/* Botón activo */
+.nav-button.active {
+    background-color: green;
+    color: white;
+}
+
+/* Historial de Movimientos */
+#transactionHistory {
+    margin-top: 20px;
+}
+
+#transactionList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#transactionList li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.transaction-actions1 {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.transaction-actions1 button {
+    padding: 10px;
+    width: 48%;
+    border-radius: var(--border-radius);
+    border: 1px solid #ddd;
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.transaction-actions1 button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+#transactionList li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+}
+
+.delete-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+    background-color: darkred;
+}
+
+/* new icon design */
+
+.icon-nav {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+}
+
+.nav-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 10px;
+    transition: all 0.3s ease;
+    border-radius: var(--border-radius);
+}
+
+.nav-button i {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.nav-button span {
+    font-size: 0.8rem;
+}
+
+.nav-button:hover {
+    background-color: rgba(69, 160, 73, 0.1); /* Versión semi-transparente del #45a049 */
+}
+
+.nav-button.active {
+    background-color: #45a049;
+    color: white;
+}
+
+@media (max-width: 600px) {
+    .icon-nav {
+        flex-wrap: wrap;
     }
 
-    // Cargar datos
-    loadTransactions();
-    loadCategories();
-
-        // Actualizar UI
-        updateUI();
-        updateCategoryOptions();
-
-        
-        
-
-            // Configurar event listeners
-    document.getElementById('manageCategoriesBtn').addEventListener('click', showCategoryManagementModal);
-    document.getElementById('closeCategoryManagementBtn').addEventListener('click', () => {
-        document.getElementById('categoryManagementModal').style.display = 'none';
-    });
-    document.getElementById('addCategoryForm').addEventListener('submit', addCategory);
-
-    const showTransactionsBtn = document.getElementById('showTransactionsBtn');
-    const showStatsBtn = document.getElementById('showStatsBtn');
-    const transactionsView = document.getElementById('transactionsView');
-    const statsView = document.getElementById('statsView');
-
-    showTransactionsBtn.addEventListener('click', function() {
-        // Mostrar la vista de transacciones y ocultar la de estadísticas
-        transactionsView.style.display = 'block';
-        statsView.style.display = 'none';
-
-        
-
-        // Cambiar la clase active entre los botones
-        showTransactionsBtn.classList.add('active');
-        showStatsBtn.classList.remove('active');
-    });
-
-    showStatsBtn.addEventListener('click', function() {
-        
-        // Mostrar la vista de estadísticas y ocultar la de transacciones
-        transactionsView.style.display = 'none';
-        statsView.style.display = 'block';
-        
-
-        // Cambiar la clase active entre los botones
-        showStatsBtn.classList.add('active');
-        showTransactionsBtn.classList.remove('active');
-
-        updateCharts(); // Recargar los gráficos después de agregar una transacción
-        
-
-
-        
-    });
-    
-});
-
-
-// Función para cambiar entre modos claro y oscuro
-function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    
-    // Guardar la preferencia del usuario
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDarkMode);
-    
-    // Actualizar los gráficos
-    updateCharts();
-}
-
-
-// Evento para el botón de cambio de modo
-document.getElementById('modeToggle').addEventListener('click', toggleDarkMode);
-
-// Aplicar el modo oscuro si estaba activo anteriormente
-if (localStorage.getItem('darkMode') === 'true') {
-    document.body.classList.add('dark-mode');
-}
-
-// Llamar a updateCharts después de que la página se haya cargado completamente
-document.addEventListener('DOMContentLoaded', () => {
-    
-    updateCharts();
-});
-
-// Función para actualizar los colores de los gráficos
-function updateChartColors(chart, isDarkMode) {
-    chart.options.scales.x.grid.color = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-    chart.options.scales.y.grid.color = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-    chart.options.scales.x.ticks.color = isDarkMode ? '#fff' : '#666';
-    chart.options.scales.y.ticks.color = isDarkMode ? '#fff' : '#666';
-    
-    chart.data.datasets.forEach((dataset, i) => {
-        if (i === 0) { // Ingresos
-            dataset.backgroundColor = isDarkMode ? 'rgba(102, 187, 106, 0.6)' : 'rgba(75, 192, 192, 0.6)';
-            dataset.borderColor = isDarkMode ? 'rgba(102, 187, 106, 1)' : 'rgba(75, 192, 192, 1)';
-        } else { // Gastos
-            dataset.backgroundColor = isDarkMode ? 'rgba(255, 82, 82, 0.6)' : 'rgba(255, 99, 132, 0.6)';
-            dataset.borderColor = isDarkMode ? 'rgba(255, 82, 82, 1)' : 'rgba(255, 99, 132, 1)';
-        }
-    });
-    
-    chart.options.plugins.title.color = isDarkMode ? '#fff' : '#333';
-    chart.options.plugins.legend.labels.color = isDarkMode ? '#fff' : '#666';
-    
-    chart.update();
-}
-
-
-
-// Cargar categorías desde el almacenamiento local
-function loadCategories() {
-    const savedCategories = localStorage.getItem('categories');
-    if (savedCategories) {
-        categories = JSON.parse(savedCategories);
-    } else {
-        // Si no hay categorías guardadas, usar las predeterminadas
-        categories = ['Comida', 'Transporte', 'Entretenimiento', 'Servicios', 'Otros'];
-        saveCategories();
-    }
-    updateCategoryOptions();
-}
-
-// Guardar categorías en el almacenamiento local
-function saveCategories() {
-    localStorage.setItem('categories', JSON.stringify(categories));
-    updateCategoryOptions();
-}
-
-// Actualizar las opciones de categoría en los formularios
-function updateCategoryOptions() {
-    const categorySelects = document.querySelectorAll('#category, #editCategory');
-    categorySelects.forEach(select => {
-        const currentValue = select.value;
-        select.innerHTML = '<option value="">Seleccione una categoría</option>';
-        categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category;
-            option.textContent = category;
-            select.appendChild(option);
-        });
-        select.value = currentValue;
-    });
-}
-
-// Mostrar el modal de gestión de categorías
-function showCategoryManagementModal() {
-    const modal = document.getElementById('categoryManagementModal');
-    if (modal) {
-        updateCategoryList();
-        modal.style.display = 'block';
-    } else {
-        console.error("Element with id 'categoryManagementModal' not found");
+    .nav-button {
+        flex: 1 0 40%;
+        margin: 5px;
     }
 }
 
-// Actualizar la lista de categorías en el modal
-function updateCategoryList() {
-    const categoryList = document.getElementById('categoryList');
-    if (categoryList) {
-        categoryList.innerHTML = '';
-        categories.forEach(category => {
-            const categoryItem = document.createElement('div');
-            categoryItem.classList.add('category-item');
-            categoryItem.innerHTML = `
-                <span>${category}</span>
-                <button onclick="deleteCategory('${category}')">Eliminar</button>
-            `;
-            categoryList.appendChild(categoryItem);
-        });
-    } else {
-        console.error("Element with id 'categoryList' not found");
-    }
-}
-// Añadir una nueva categoría
-function addCategory(e) {
-    e.preventDefault();
-    const newCategoryInput = document.getElementById('newCategoryName');
-    if (newCategoryInput) {
-        const newCategory = newCategoryInput.value.trim();
-        if (newCategory && !categories.includes(newCategory)) {
-            categories.push(newCategory);
-            saveCategories();
-            updateCategoryList();
-            newCategoryInput.value = '';
-        }
-    } else {
-        console.error("Element with id 'newCategoryName' not found");
-    }
+.floating-btn {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 40px;
+    right: 40px;
+    background-color: #0C9;
+    color: #FFF;
+    border-radius: 50px;
+    text-align: center;
+    box-shadow: 2px 2px 3px #999;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
 }
 
-// Eliminar una categoría
-function deleteCategory(category) {
-    categories = categories.filter(c => c !== category);
-    saveCategories();
-    updateCategoryList();
-    updateUI();
+.settings-btn {
+    background-color: var(--primary-color);
 }
 
 
-// Crear gráfico de categorías
-function createCategoryChart() {
-    const ctx = document.getElementById('categoryChart').getContext('2d');
-    const categoryData = getCategoryData();
-    
-    if (categoryChartInstance) {
-        categoryChartInstance.destroy();
-    }
-
-    categoryChartInstance = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: categoryData.map(d => d.category),
-            datasets: [{
-                data: categoryData.map(d => d.total),
-                backgroundColor: getRandomColors(categoryData.length)
-            }]
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: 'Gastos por Categoría'
-            }
-        }
-    });
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
 }
 
-// Obtener datos de categorías para el gráfico
-function getCategoryData() {
-    const categoryData = {};
-    transactions.forEach(transaction => {
-        if (transaction.type === 'expense') {
-            if (!categoryData[transaction.category]) {
-                categoryData[transaction.category] = 0;
-            }
-            categoryData[transaction.category] += transaction.amount;
-        }
-    });
-    return Object.entries(categoryData).map(([category, total]) => ({ category, total }));
+.popup-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
 }
 
-// Generar colores aleatorios para el gráfico
-function getRandomColors(count) {
-    const colors = [];
-    for (let i = 0; i < count; i++) {
-        colors.push(`hsl(${Math.random() * 360}, 70%, 50%)`);
-    }
-    return colors;
+.popup-content h2 {
+    margin-top: 0;
 }
 
-
-//Credit card section
-
-document.getElementById('addCreditCardForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    let cardName = document.getElementById('cardName').value;
-    let cardLastDigits = document.getElementById('cardLastDigits').value;
-    let interestRate = parseFloat(document.getElementById('interestRate').value);
-    let creditLimit = parseFloat(document.getElementById('creditLimit').value);
-    let cutoffDate = document.getElementById('cutoffDate').value;
-    let paymentDate = document.getElementById('paymentDate').value;
-    
-    if(cardLastDigits.length !== 4) {
-        alert("Los últimos 4 dígitos deben tener exactamente 4 números.");
-        return;
-    }
-
-    let creditCard = {
-        cardName,
-        cardLastDigits,
-        interestRate,
-        creditLimit,
-        cutoffDate,
-        paymentDate,
-        currentBalance: creditLimit
-    };
-
-    localStorage.setItem('creditCard', JSON.stringify(creditCard));
-
-    displayCardInfo();
-    displayDebtInfo();
-    
-    // Ocultar el formulario y limpiar los campos
-    this.style.display = 'none';
-    this.reset();
-});
-
-
-function updateCardExpensesChart() {
-    var ctx = document.getElementById('cardExpensesChart').getContext('2d');
-    var cardExpensesChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
-            datasets: [{
-                label: 'Gastos Mensuales',
-                data: [100, 200, 150, 300, 250],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+.popup-content button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
-document.getElementById('showCreditCardBtn').addEventListener('click', function() {
-    document.getElementById('transactionsView').style.display = 'none';
-    document.getElementById('statsView').style.display = 'none';
-    document.getElementById('calendarView').style.display = 'none';
-    document.getElementById('creditCardView').style.display = 'block';
-    document.getElementById('addTransactionBtn').style.display = 'none';
-    document.getElementById('manageCategoriesBtn').style.display = 'none';
-});
-
-
-function displayCardInfo() {
-    let creditCard = JSON.parse(localStorage.getItem('creditCard'));
-
-    if (creditCard) {
-        let debt = creditCard.creditLimit - creditCard.currentBalance;
-        document.getElementById('cardInfo').innerHTML = `
-            <p>Tarjeta: ${creditCard.cardName} ****${creditCard.cardLastDigits}</p>
-            <p>Crédito Total: $${creditCard.creditLimit}</p>
-            <p>Balance Disponible: $${creditCard.currentBalance}</p>
-            <p>Deuda Actual: $${debt}</p>
-            <button id="deleteCardBtn" class="delete-btn">Eliminar Tarjeta</button>
-        `;
-        // Volver a agregar el evento al botón de eliminar
-        document.getElementById('deleteCardBtn').addEventListener('click', function() {
-            if (confirm('¿Estás seguro de que quieres eliminar los datos de la tarjeta?')) {
-                localStorage.removeItem('creditCard');
-                document.getElementById('cardInfo').innerHTML = '<p>No hay tarjeta registrada</p>';
-                document.getElementById('addCreditCardForm').style.display = 'block';
-            }
-        });
-    } else {
-        document.getElementById('cardInfo').innerHTML = '<p>No hay tarjeta registrada</p>';
-        document.getElementById('addCreditCardForm').style.display = 'block';
-    }
+.popup-content button:hover {
+    background-color: #45a049;
 }
 
-// Mostrar la deuda actual
-function displayDebtInfo() {
-    let creditCard = JSON.parse(localStorage.getItem('creditCard'));
-
-    if (creditCard) {
-        let debt = creditCard.creditLimit - creditCard.currentBalance;
-        document.getElementById('debtInfo').innerHTML = `
-            
-        `;
-    }
+/* Estilo para el modo oscuro */
+body.dark-mode .popup-content {
+    background-color: #333;
+    color: #fff;
 }
 
-document.getElementById('addExpenseBtn').addEventListener('click', function() {
-    document.getElementById('creditCardTransactionModal').style.display = 'block';
-    document.getElementById('ccTransactionType').value = 'Gasto';
-});
-
-document.getElementById('addIncomeBtn').addEventListener('click', function() {
-    document.getElementById('creditCardTransactionModal').style.display = 'block';
-    document.getElementById('ccTransactionType').value = 'Ingreso';
-});
-
-document.getElementById('cancelCCTransaction').addEventListener('click', function() {
-    document.getElementById('creditCardTransactionModal').style.display = 'none';
-});
-
-document.getElementById('creditCardTransactionForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    let type = document.getElementById('ccTransactionType').value;
-    let amount = parseFloat(document.getElementById('ccTransactionAmount').value);
-    let date = document.getElementById('ccTransactionDate').value;
-    let comment = document.getElementById('ccTransactionComment').value;
-
-    if (isNaN(amount) || amount <= 0) {
-        alert("Por favor ingresa un monto válido.");
-        return;
-    }
-
-    updateBalance(type === 'Gasto' ? -amount : amount);
-    addTransaction1(type, amount, date, comment);
-    document.getElementById('creditCardTransactionModal').style.display = 'none';
-});
-
-// Función para actualizar el balance y la deuda
-function updateBalance(amount) {
-    let creditCard = JSON.parse(localStorage.getItem('creditCard'));
-    if (creditCard) {
-        creditCard.currentBalance += amount;
-        localStorage.setItem('creditCard', JSON.stringify(creditCard));
-        displayCardInfo();
-        displayDebtInfo();  // Actualizar la deuda después de cada cambio
-    }
+body.dark-mode .popup-content button {
+    background-color: #555;
 }
 
-// Función para mostrar la lista de movimientos
-function displayTransactions() {
-    let transactions1 = JSON.parse(localStorage.getItem('transactions1')) || [];
-    let transactionList = document.getElementById('transactionHistory');
-    transactionList.innerHTML = '';
-
-    transactions1.forEach(transaction1 => {
-        let li = document.createElement('li');
-        li.innerHTML = `
-            <span>${transaction1.date} - ${transaction1.type}: $${transaction1.amount}</span>
-            <p>${transaction1.comment || ''}</p>
-            <button class="delete-btn" onclick="deleteTransaction(${transaction1.id})">Eliminar</button>
-        `;
-        transactionList.appendChild(li);
-    });
+body.dark-mode .popup-content button:hover {
+    background-color: #666;
 }
 
-// Actualizar navegación y mostrar/ocultar secciones
-function showSection(sectionId, buttonId) {
-    document.querySelectorAll('.section').forEach(section => {
-        section.style.display = 'none';
-    });
-    document.querySelectorAll('.nav-button').forEach(button => {
-        button.classList.remove('active');
-        button.style.backgroundColor = 'black';
-        button.style.color = 'white';
-    });
-    document.getElementById(sectionId).style.display = 'block';
-    let button = document.getElementById(buttonId);
-    button.classList.add('active');
-    button.style.backgroundColor = '#66bb6a';
+#addTransactionBtn {
+    bottom: 100px; /* Ajusta según la distancia que desees del borde inferior */
+    right: 40px;
 }
 
-document.getElementById('showCreditCardBtn').addEventListener('click', function() {
-    showSection('creditCardView', 'showCreditCardBtn');
-});
-
-document.getElementById('showTransactionsBtn').addEventListener('click', function() {
-    showSection('transactionsView', 'showTransactionsBtn');
-    document.getElementById('addTransactionBtn').style.display = 'block';
-    document.getElementById('manageCategoriesBtn').style.display = 'block';
-    document.getElementById('settingsBtn').style.display = 'block';
-});
-
-document.getElementById('showCalendarBtn').addEventListener('click', function() {
-    showSection('calendarView', 'showCalendarBtn');
-    document.getElementById('addTransactionBtn').style.display = 'none';
-    document.getElementById('manageCategoriesBtn').style.display = 'none';
-    document.getElementById('settingsBtn').style.display = 'none';
-});
-
-document.getElementById('showStatsBtn').addEventListener('click', function() {
-    showSection('statsView', 'showStatsBtn');
-    document.getElementById('addTransactionBtn').style.display = 'none';
-    document.getElementById('manageCategoriesBtn').style.display = 'none';
-    document.getElementById('settingsBtn').style.display = 'none';
-});
-
-
-// Función para mostrar/ocultar el formulario de agregar tarjeta
-document.getElementById('toggleCardFormBtn').addEventListener('click', function() {
-    let form = document.getElementById('addCreditCardForm');
-    form.style.display = (form.style.display === "none") ? "block" : "none";
-});
-
-// Función para añadir y mostrar movimientos
-function addTransaction1(type, amount, date, comment) {
-    let transactions1 = JSON.parse(localStorage.getItem('transactions1')) || [];
-    let transaction1 = { id: Date.now(), type, amount, date, comment };
-    transactions1.push(transaction1);
-    localStorage.setItem('transactions1', JSON.stringify(transactions1));
-    displayTransactions();
+#settingsBtn {
+    bottom: 160px; /* Ajusta según la distancia necesaria para evitar la superposición */
+    right: 40px;
 }
 
-
-// Función para eliminar un movimiento
-function deleteTransaction(id) {
-    let transactions1 = JSON.parse(localStorage.getItem('transactions1')) || [];
-    let transaction1 = transactions1.find(trans => trans.id === id);
-    if (transaction1) {
-        let adjustment = transaction1.type === 'Gasto' ? transaction1.amount : -transaction1.amount;
-        updateBalance(adjustment);  // Revertir el impacto del movimiento en el balance
-        transactions1 = transactions1.filter(trans => trans.id !== id);
-        localStorage.setItem('transactions1', JSON.stringify(transactions1));
-        displayTransactions();
-    }
+#manageCategoriesBtn {
+    bottom: 220px; /* Ajusta según la distancia que desees del borde inferior */
+    right: 40px;
 }
-
-// Añadir un botón para eliminar los datos de la tarjeta
-document.getElementById('cardInfo').innerHTML += `
-    <button id="deleteCardBtn" class="delete-btn">Eliminar Tarjeta</button>
-`;
-
-// Evento para eliminar los datos de la tarjeta
-document.getElementById('deleteCardBtn').addEventListener('click', function() {
-    if (confirm('¿Estás seguro de que quieres eliminar los datos de la tarjeta?')) {
-        localStorage.removeItem('creditCard');
-        document.getElementById('cardInfo').innerHTML = '<p>No hay tarjeta registrada</p>';
-        document.getElementById('debtInfo').innerHTML = '';
-        document.getElementById('addCreditCardForm').style.display = 'block';
-    }
-});
-
-// Asegurarse de que displayCardInfo se llame al cargar la página
-window.onload = function() {
-    displayCardInfo();
-    displayDebtInfo();
-    displayTransactions();
-};
-
-
-
-// Función para exportar datos
-function exportData() {
-    const data = {
-        transactions: transactions,
-        categories: categories,
-        creditCard: JSON.parse(localStorage.getItem('creditCard')),
-        transactions1: JSON.parse(localStorage.getItem('transactions1')),
-        archivedMonths: archivedMonths
-    };
-
-    const dataStr = JSON.stringify(data);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = 'mai_money_data.json';
-
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-}
-
-// Función para importar datos
-function importData(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        try {
-            const data = JSON.parse(e.target.result);
-            
-            // Restaurar datos
-            transactions = data.transactions;
-            categories = data.categories;
-            localStorage.setItem('creditCard', JSON.stringify(data.creditCard));
-            localStorage.setItem('transactions1', JSON.stringify(data.transactions1));
-            archivedMonths = data.archivedMonths;
-
-            // Guardar datos en localStorage
-            saveTransactions();
-            saveCategories();
-
-            // Actualizar la interfaz
-            updateUI();
-            displayCardInfo();
-            displayDebtInfo();
-            displayTransactions();
-            updateCategoryOptions();
-            updateCharts();
-
-            alert('Datos importados con éxito');
-        } catch (error) {
-            console.error('Error al importar datos:', error);
-            alert('Error al importar datos. Por favor, asegúrate de que el archivo es válido.');
-        }
-    };
-
-    reader.readAsText(file);
-}
-
-// Función para manejar el clic en el botón de importar
-function handleImportClick() {
-    document.getElementById('importInput').click();
-}
-
-// Función para confirmar y eliminar todos los datos
-function confirmDataDeletion() {
-    if (confirm('¿Estás seguro de que quieres eliminar TODOS los datos? Esta acción no se puede deshacer.')) {
-        // Eliminar todos los datos del localStorage
-        localStorage.clear();
-
-        // Reiniciar variables globales
-        transactions = [];
-        categories = ['Comida', 'Transporte', 'Entretenimiento', 'Servicios', 'Otros'];
-        archivedMonths = {};
-
-        // Actualizar la interfaz
-        updateUI();
-        displayCardInfo();
-        displayDebtInfo();
-        displayTransactions();
-        updateCategoryOptions();
-        updateCharts();
-
-        alert('Todos los datos han sido eliminados.');
-    }
-}
-
-// Agregar event listener al botón de eliminar datos
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteAllDataBtn = document.getElementById('deleteAllDataBtn');
-    if (deleteAllDataBtn) {
-        deleteAllDataBtn.addEventListener('click', confirmDataDeletion);
-    }
-});
-
-// Función para mostrar/ocultar el popup de ajustes
-function toggleSettingsPopup() {
-    const popup = document.getElementById('settingsPopup');
-    popup.style.display = popup.style.display === 'none' ? 'block' : 'block';
-}
-
-// Evento para cerrar el popup si se hace clic fuera de él
-window.onclick = function(event) {
-    const popup = document.getElementById('settingsPopup');
-    if (event.target === popup) {
-        popup.style.display = 'none';
-    }
-}
-
-
-// Asegúrate de que estas funciones estén definidas o ajusta según sea necesario
-document.getElementById('exportBtn').addEventListener('click', exportData);
-document.getElementById('importBtn').addEventListener('click', handleImportClick);
-document.getElementById('deleteAllDataBtn').addEventListener('click', confirmDataDeletion);
