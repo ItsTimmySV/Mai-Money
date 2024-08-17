@@ -1091,6 +1091,7 @@ document.getElementById('showCreditCardBtn').addEventListener('click', function(
     document.getElementById('creditCardView').style.display = 'block';
     document.getElementById('addTransactionBtn').style.display = 'none';
     document.getElementById('manageCategoriesBtn').style.display = 'none';
+    document.getElementById('addCreditCardForm').style.display = 'none';
 });
 
 
