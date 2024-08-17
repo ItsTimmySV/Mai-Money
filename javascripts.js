@@ -1400,3 +1400,26 @@ window.onclick = function(event) {
 document.getElementById('exportBtn').addEventListener('click', exportData);
 document.getElementById('importBtn').addEventListener('click', handleImportClick);
 document.getElementById('deleteAllDataBtn').addEventListener('click', confirmDataDeletion);
+
+
+document.getElementById('showFloatingMenuBtn').addEventListener('click', function() {
+    const buttons = [
+        document.getElementById('addTransactionBtn'),
+        document.getElementById('manageCategoriesBtn'),
+        document.getElementById('settingsBtn')
+    ];
+
+    buttons.forEach((btn, index) => {
+        if (btn.classList.contains('float-btn-hidden')) {
+            // Mostrar botones
+            setTimeout(() => {
+                btn.classList.remove('float-btn-hidden');
+                btn.classList.add('float-btn-visible');
+            }, index * 100); // Animación escalonada
+        } else {
+            // Ocultar botones
+            btn.classList.remove('float-btn-visible');
+            btn.classList.add('float-btn-hidden');
+        }
+    });
+});
