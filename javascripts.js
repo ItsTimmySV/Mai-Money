@@ -1092,6 +1092,7 @@ document.getElementById('showCreditCardBtn').addEventListener('click', function(
     document.getElementById('addTransactionBtn').style.display = 'none';
     document.getElementById('manageCategoriesBtn').style.display = 'none';
     document.getElementById('addCreditCardForm').style.display = 'none';
+    document.getElementById('showFloatingMenuBtn').style.display = 'none';
 });
 
 
@@ -1217,6 +1218,7 @@ document.getElementById('showTransactionsBtn').addEventListener('click', functio
     document.getElementById('addTransactionBtn').style.display = 'block';
     document.getElementById('manageCategoriesBtn').style.display = 'block';
     document.getElementById('settingsBtn').style.display = 'block';
+    document.getElementById('showFloatingMenuBtn').style.display = 'block';
 });
 
 document.getElementById('showCalendarBtn').addEventListener('click', function() {
@@ -1224,6 +1226,7 @@ document.getElementById('showCalendarBtn').addEventListener('click', function() 
     document.getElementById('addTransactionBtn').style.display = 'none';
     document.getElementById('manageCategoriesBtn').style.display = 'none';
     document.getElementById('settingsBtn').style.display = 'none';
+    document.getElementById('showFloatingMenuBtn').style.display = 'none';
 });
 
 document.getElementById('showStatsBtn').addEventListener('click', function() {
@@ -1231,6 +1234,7 @@ document.getElementById('showStatsBtn').addEventListener('click', function() {
     document.getElementById('addTransactionBtn').style.display = 'none';
     document.getElementById('manageCategoriesBtn').style.display = 'none';
     document.getElementById('settingsBtn').style.display = 'none';
+    document.getElementById('showFloatingMenuBtn').style.display = 'none';
 });
 
 
