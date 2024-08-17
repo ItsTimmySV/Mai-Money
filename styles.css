@@ -52,11 +52,12 @@ nav {
     margin-bottom: 20px;
 }
 
+/* Estilo general para botones inactivos */
 nav button {
     padding: 5px 10px;
     margin: 0 10px;
-    background-color: var(--card-background);
-    color: var(--text-color);
+    background-color: var(--card-background) !important; /* Forzar fondo blanco en modo claro */
+    color: var(--text-color) !important;
     border: none;
     cursor: pointer;
     border-radius: var(--border-radius);
@@ -64,10 +65,38 @@ nav button {
     box-shadow: var(--box-shadow);
 }
 
-nav button:hover, nav button.active {
+/* Botón activo mantiene el color verde */
+nav button.active {
+    background-color: var(--primary-color) !important; /* Verde en modo claro */
+    color: white !important;
+}
+
+/* Estilo para botones inactivos al estar clicados */
+nav button:not(.active) {
+    background-color: var(--card-background) !important; /* Mantener fondo blanco */
+    color: var(--text-color) !important;
+}
+
+/* Hover para botones inactivos */
+nav button:not(.active):hover {
+    background-color: var(--primary-color) !important; /* Cambia a verde al pasar sobre ellos */
+    color: white !important;
+}
+
+
+#showTransactionsBtn.active {
     background-color: var(--primary-color);
     color: white;
-    transform: translateY(-2px);
+}
+
+#showCalendarBtn, #showStatsBtn, #showCreditCardBtn {
+    background-color: var(--card-background); /* Blanco */
+    color: var(--text-color);
+}
+
+#showCalendarBtn:hover, #showStatsBtn:hover, #showCreditCardBtn:hover {
+    background-color: var(--primary-color); /* Cambiar a verde al pasar sobre ellos */
+    color: white;
 }
 
 .summary {
@@ -1145,4 +1174,32 @@ body.dark-mode .popup-content button:hover {
 #manageCategoriesBtn {
     bottom: 220px; /* Ajusta según la distancia que desees del borde inferior */
     right: 40px;
+}
+
+.float-btn-hidden {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+}
+
+/* Mostrar los botones flotantes */
+.float-btn-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-2px); /* Ajusta este valor según la separación que desees */
+}
+
+/* Ajustes de posición para la animación */
+
+#addTransactionBtn {
+    transform: translateY(-20px); /* Ajusta la posición para mostrarlo encima del anterior */
+}
+
+#manageCategoriesBtn {
+    transform: translateY(-20px); /* Ajusta la posición para mostrarlo encima del anterior */
+}
+
+#settingsBtn {
+    transform: translateY(-20px); /* Ajusta la posición para mostrarlo encima del anterior */
 }
