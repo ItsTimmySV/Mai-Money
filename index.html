@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -78,10 +79,26 @@
                 </div>
             </section>
         </main>
-        <button id="manageCategoriesBtn" class="float-btn">C</button>
-        <button id="addTransactionBtn" class="float-btn">+</button>
-        <button id="settingsBtn" class="float-btn settings-btn">S</button>
-    
+<!-- Nuevo botón flotante -->
+<button id="showFloatingMenuBtn" class="float-btn">≡</button>
+
+<!-- Botones flotantes existentes -->
+<button id="addTransactionBtn" class="float-btn float-btn-hidden">
+    <i class="fas fa-plus"></i>
+</button>
+
+<!-- Botón para gestionar categorías (cuatro cuadros) -->
+<button id="manageCategoriesBtn" class="float-btn float-btn-hidden">
+    <i class="fas fa-th"></i>
+</button>
+
+<!-- Botón para configuraciones -->
+<button id="settingsBtn" class="float-btn float-btn-hidden settings-btn">
+    <i class="fas fa-cog"></i>
+</button>
+
+
+
     </div>
 
     <div id="addTransactionModal" class="modal">
