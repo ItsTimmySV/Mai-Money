@@ -532,6 +532,7 @@ function isMobileDevice() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('settingsBtn').addEventListener('click', toggleSettingsPopup);
 
     loadCategories();
 
@@ -1214,18 +1215,21 @@ document.getElementById('showTransactionsBtn').addEventListener('click', functio
     showSection('transactionsView', 'showTransactionsBtn');
     document.getElementById('addTransactionBtn').style.display = 'block';
     document.getElementById('manageCategoriesBtn').style.display = 'block';
+    document.getElementById('settingsBtn').style.display = 'block';
 });
 
 document.getElementById('showCalendarBtn').addEventListener('click', function() {
     showSection('calendarView', 'showCalendarBtn');
     document.getElementById('addTransactionBtn').style.display = 'none';
     document.getElementById('manageCategoriesBtn').style.display = 'none';
+    document.getElementById('settingsBtn').style.display = 'none';
 });
 
 document.getElementById('showStatsBtn').addEventListener('click', function() {
     showSection('statsView', 'showStatsBtn');
     document.getElementById('addTransactionBtn').style.display = 'none';
     document.getElementById('manageCategoriesBtn').style.display = 'none';
+    document.getElementById('settingsBtn').style.display = 'none';
 });
 
 
@@ -1376,3 +1380,23 @@ document.addEventListener('DOMContentLoaded', function() {
         deleteAllDataBtn.addEventListener('click', confirmDataDeletion);
     }
 });
+
+// Función para mostrar/ocultar el popup de ajustes
+function toggleSettingsPopup() {
+    const popup = document.getElementById('settingsPopup');
+    popup.style.display = popup.style.display === 'none' ? 'block' : 'block';
+}
+
+// Evento para cerrar el popup si se hace clic fuera de él
+window.onclick = function(event) {
+    const popup = document.getElementById('settingsPopup');
+    if (event.target === popup) {
+        popup.style.display = 'none';
+    }
+}
+
+
+// Asegúrate de que estas funciones estén definidas o ajusta según sea necesario
+document.getElementById('exportBtn').addEventListener('click', exportData);
+document.getElementById('importBtn').addEventListener('click', handleImportClick);
+document.getElementById('deleteAllDataBtn').addEventListener('click', confirmDataDeletion);
