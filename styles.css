@@ -1050,3 +1050,99 @@ li:hover {
         margin: 5px;
     }
 }
+
+.floating-btn {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 40px;
+    right: 40px;
+    background-color: #0C9;
+    color: #FFF;
+    border-radius: 50px;
+    text-align: center;
+    box-shadow: 2px 2px 3px #999;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+}
+
+.settings-btn {
+    background-color: var(--primary-color);
+}
+
+
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.popup-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+}
+
+.popup-content h2 {
+    margin-top: 0;
+}
+
+.popup-content button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.popup-content button:hover {
+    background-color: #45a049;
+}
+
+/* Estilo para el modo oscuro */
+body.dark-mode .popup-content {
+    background-color: #333;
+    color: #fff;
+}
+
+body.dark-mode .popup-content button {
+    background-color: #555;
+}
+
+body.dark-mode .popup-content button:hover {
+    background-color: #666;
+}
+
+#addTransactionBtn {
+    bottom: 100px; /* Ajusta según la distancia que desees del borde inferior */
+    right: 40px;
+}
+
+#settingsBtn {
+    bottom: 160px; /* Ajusta según la distancia necesaria para evitar la superposición */
+    right: 40px;
+}
+
+#manageCategoriesBtn {
+    bottom: 220px; /* Ajusta según la distancia que desees del borde inferior */
+    right: 40px;
+}
