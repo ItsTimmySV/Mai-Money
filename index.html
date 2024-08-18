@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <div class="container">
@@ -249,5 +250,18 @@
 </div>
 
       <script src="javascripts.js"></script>
+
+      <script>
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/service-worker.js')
+          .then((registration) => {
+            console.log('Service Worker registrado con éxito:', registration);
+          })
+          .catch((error) => {
+            console.log('Error al registrar el Service Worker:', error);
+          });
+        }
+      </script>
+      
 </body>
 </html>
