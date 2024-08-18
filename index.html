@@ -182,10 +182,21 @@
                 <input type="number" id="cardLastDigits" placeholder="Últimos 4 Dígitos" required maxlength="4">
                 <input type="number" step="0.01" id="interestRate" placeholder="Tasa de Interés (%)" required>
                 <input type="number" step="0.01" id="creditLimit" placeholder="Crédito Total de la Tarjeta" required>
+                <label for="cutoffDate">Fecha de Corte:</label>
                 <input type="date" id="cutoffDate" placeholder="Fecha de Corte" required>
+                <label for="paymentDate">Fecha de Pago:</label>
                 <input type="date" id="paymentDate" placeholder="Fecha de Pago" required>
                 <button type="submit">Agregar Tarjeta</button>
             </form>
+                <!-- Nuevo elemento para mostrar el uso de la tarjeta -->
+<div id="creditUsage">
+    <h3>Uso de la Tarjeta</h3>
+    <div class="progress-bar">
+        <div class="progress" id="usageBar"></div>
+    </div>
+    <p id="usagePercentage"></p>
+</div>
+
             <div id="cardInfo"></div>
             <div id="debtInfo"></div> <!-- Campo para mostrar la deuda -->
         </div>
@@ -219,7 +230,10 @@
             </form>
         </div>
     </div>
+
+
     <br>
+
 
 
 
