@@ -1,17 +1,17 @@
 {
   "name": "Mai Money",
-  "short_name": "MaiMoney",
+  "short_name": "Mai Money",
   "description": "Una aplicación para gestionar tus finanzas.",
   "icons": [
     {
-      "src": "img/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+        "src": "img/money-bag.png",
+        "sizes": "192x192",
+        "type": "image/png"
     },
     {
-      "src": "img/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+        "src": "img/money-bag.png",
+        "sizes": "512x512",
+        "type": "image/png"
     }
   ],
   "start_url": "/Mai-Money/",
