@@ -1111,6 +1111,7 @@ function displayCardInfo() {
             <p>Deuda Actual: $${debt}</p>
             <p>Fecha de Corte: ${creditCard.cutoffDate}</p>
             <p>Fecha de Pago: ${creditCard.paymentDate}</p>
+            <br>
             <button id="deleteCardBtn" class="delete-btn">Eliminar Tarjeta</button>
         `;
         
