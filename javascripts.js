@@ -1093,6 +1093,7 @@ document.getElementById('showCreditCardBtn').addEventListener('click', function(
     document.getElementById('manageCategoriesBtn').style.display = 'none';
     document.getElementById('addCreditCardForm').style.display = 'none';
     document.getElementById('showFloatingMenuBtn').style.display = 'none';
+    document.getElementById('settingsBtn').style.display = 'none';
 });
 
 
@@ -1101,24 +1102,43 @@ function displayCardInfo() {
 
     if (creditCard) {
         let debt = creditCard.creditLimit - creditCard.currentBalance;
+        let usagePercentage = (debt / creditCard.creditLimit) * 100;
+        
         document.getElementById('cardInfo').innerHTML = `
             <p>Tarjeta: ${creditCard.cardName} ****${creditCard.cardLastDigits}</p>
             <p>Crédito Total: $${creditCard.creditLimit}</p>
             <p>Balance Disponible: $${creditCard.currentBalance}</p>
             <p>Deuda Actual: $${debt}</p>
+            <p>Fecha de Corte: ${creditCard.cutoffDate}</p>
+            <p>Fecha de Pago: ${creditCard.paymentDate}</p>
             <button id="deleteCardBtn" class="delete-btn">Eliminar Tarjeta</button>
         `;
+        
+        // Actualizar la barra de progreso
+        document.getElementById('usageBar').style.width = `${usagePercentage}%`;
+        document.getElementById('usagePercentage').textContent = `Uso: ${usagePercentage.toFixed(2)}%`;
+        
+        // Color de la barra basado en el porcentaje de uso
+        let barColor = usagePercentage < 30 ? '#4CAF50' : // Verde
+                       usagePercentage < 70 ? '#FFA500' : // Naranja
+                       '#FF0000'; // Rojo
+        document.getElementById('usageBar').style.backgroundColor = barColor;
+        
         // Volver a agregar el evento al botón de eliminar
         document.getElementById('deleteCardBtn').addEventListener('click', function() {
             if (confirm('¿Estás seguro de que quieres eliminar los datos de la tarjeta?')) {
                 localStorage.removeItem('creditCard');
                 document.getElementById('cardInfo').innerHTML = '<p>No hay tarjeta registrada</p>';
                 document.getElementById('addCreditCardForm').style.display = 'block';
+                document.getElementById('creditUsage').style.display = 'none';
             }
         });
+        
+        document.getElementById('creditUsage').style.display = 'block';
     } else {
         document.getElementById('cardInfo').innerHTML = '<p>No hay tarjeta registrada</p>';
         document.getElementById('addCreditCardForm').style.display = 'block';
+        document.getElementById('creditUsage').style.display = 'none';
     }
 }
 
