@@ -1154,15 +1154,12 @@ function displayDebtInfo() {
     }
 }
 
-document.getElementById('addExpenseBtn').addEventListener('click', function() {
+document.getElementById('addExpense,IncomeBtn').addEventListener('click', function() {
     document.getElementById('creditCardTransactionModal').style.display = 'block';
-    document.getElementById('ccTransactionType').value = 'Gasto';
+    document.getElementById('ccTransactionType').value = 'Gasto','Ingreso';
 });
 
-document.getElementById('addIncomeBtn').addEventListener('click', function() {
-    document.getElementById('creditCardTransactionModal').style.display = 'block';
-    document.getElementById('ccTransactionType').value = 'Ingreso';
-});
+
 
 document.getElementById('cancelCCTransaction').addEventListener('click', function() {
     document.getElementById('creditCardTransactionModal').style.display = 'none';
