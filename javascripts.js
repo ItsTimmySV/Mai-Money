@@ -1026,7 +1026,7 @@ function getRandomColors(count) {
 
 document.getElementById('addCreditCardForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+    document.getElementById('toggleCardFormBtn').style.display = 'none';
     let cardName = document.getElementById('cardName').value;
     let cardLastDigits = document.getElementById('cardLastDigits').value;
     let interestRate = parseFloat(document.getElementById('interestRate').value);
@@ -1132,6 +1132,7 @@ function displayCardInfo() {
                 document.getElementById('cardInfo').innerHTML = '<p>No hay tarjeta registrada</p>';
                 document.getElementById('addCreditCardForm').style.display = 'block';
                 document.getElementById('creditUsage').style.display = 'none';
+                document.getElementById('toggleCardFormBtn').style.display = 'block';
             }
         });
         
@@ -1140,6 +1141,7 @@ function displayCardInfo() {
         document.getElementById('cardInfo').innerHTML = '<p>No hay tarjeta registrada</p>';
         document.getElementById('addCreditCardForm').style.display = 'block';
         document.getElementById('creditUsage').style.display = 'none';
+        
     }
 }
 
@@ -1167,6 +1169,7 @@ document.getElementById('cancelCCTransaction').addEventListener('click', functio
 });
 
 document.getElementById('creditCardTransactionForm').addEventListener('submit', function(e) {
+
     e.preventDefault();
     let type = document.getElementById('ccTransactionType').value;
     let amount = parseFloat(document.getElementById('ccTransactionAmount').value);
