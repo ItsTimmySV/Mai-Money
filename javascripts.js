@@ -1420,7 +1420,7 @@ document.getElementById('showFloatingMenuBtn').addEventListener('click', functio
             setTimeout(() => {
                 btn.classList.remove('float-btn-hidden');
                 btn.classList.add('float-btn-visible');
-            }, index * 100); // Animación escalonada
+            }, index * 1); // Animación escalonada
         } else {
             // Ocultar botones
             btn.classList.remove('float-btn-visible');
