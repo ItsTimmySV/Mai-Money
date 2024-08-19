@@ -1027,6 +1027,8 @@ function getRandomColors(count) {
 document.getElementById('addCreditCardForm').addEventListener('submit', function(e) {
     e.preventDefault();
     document.getElementById('toggleCardFormBtn').style.display = 'none';
+        // Guardar el estado en localStorage
+        localStorage.setItem('cardAdded', 'true');
     let cardName = document.getElementById('cardName').value;
     let cardLastDigits = document.getElementById('cardLastDigits').value;
     let interestRate = parseFloat(document.getElementById('interestRate').value);
@@ -1096,6 +1098,20 @@ document.getElementById('showCreditCardBtn').addEventListener('click', function(
     document.getElementById('settingsBtn').style.display = 'none';
 });
 
+window.addEventListener('load', function() {
+    // Verificar si la tarjeta ya ha sido agregada
+    const cardAdded = localStorage.getItem('cardAdded');
+    
+    if (cardAdded) {
+        // Ocultar el botón "Agregar Tarjeta"
+        document.getElementById('toggleCardFormBtn').style.display = 'none';
+    } else {
+        // Mostrar el botón "Agregar Tarjeta"
+        document.getElementById('toggleCardFormBtn').style.display = 'block';
+    }
+});
+
+
 
 function displayCardInfo() {
     let creditCard = JSON.parse(localStorage.getItem('creditCard'));
@@ -1133,6 +1149,8 @@ function displayCardInfo() {
                 document.getElementById('addCreditCardForm').style.display = 'block';
                 document.getElementById('creditUsage').style.display = 'none';
                 document.getElementById('toggleCardFormBtn').style.display = 'block';
+                    // Eliminar el estado de localStorage
+    localStorage.removeItem('cardAdded');
             }
         });
         
