@@ -1413,13 +1413,49 @@ function toggleSettingsPopup() {
     popup.style.display = popup.style.display === 'none' ? 'block' : 'block';
 }
 
-// Evento para cerrar el popup si se hace clic fuera de él
+// Evento para cerrar el settingsPopup si se hace clic fuera de él
+// Evento para cerrar los modales y botones flotantes si se hace clic fuera de ellos
 window.onclick = function(event) {
     const popup = document.getElementById('settingsPopup');
     if (event.target === popup) {
         popup.style.display = 'none';
     }
-}
+
+    const addTransactionModal = document.getElementById('addTransactionModal');
+    if (event.target === addTransactionModal) {
+        addTransactionModal.style.display = 'none';
+    }
+
+    const categoryManagementModal = document.getElementById('categoryManagementModal');
+    if (event.target === categoryManagementModal) {
+        categoryManagementModal.style.display = 'none';
+    }
+
+    const creditCardTransactionModal = document.getElementById('creditCardTransactionModal');
+    if (event.target === creditCardTransactionModal) {
+        creditCardTransactionModal.style.display = 'none';
+    }
+
+    const showFloatingMenuBtn = document.getElementById('showFloatingMenuBtn');
+    const floatingButtons = [
+        document.getElementById('addTransactionBtn'),
+        document.getElementById('manageCategoriesBtn'),
+        document.getElementById('settingsBtn')
+    ];
+
+    // Verificar si los botones flotantes están visibles y si el clic fue fuera de ellos
+    const anyButtonVisible = floatingButtons.some(btn => btn.classList.contains('float-btn-visible'));
+
+    if (anyButtonVisible && event.target !== showFloatingMenuBtn && !floatingButtons.some(btn => btn.contains(event.target))) {
+        // Ocultar los botones flotantes
+        floatingButtons.forEach(btn => {
+            btn.classList.remove('float-btn-visible');
+            btn.classList.add('float-btn-hidden');
+        });
+    }
+};
+
+
 
 
 // Asegúrate de que estas funciones estén definidas o ajusta según sea necesario
@@ -1503,4 +1539,3 @@ document.addEventListener('DOMContentLoaded', function () {
       };
     }
   });
-  
