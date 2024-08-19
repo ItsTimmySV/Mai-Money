@@ -502,7 +502,6 @@ function clearForm() {
     
     // Establecer la fecha de hoy
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date').value = today;
 }
 
 
@@ -1119,14 +1118,20 @@ function displayCardInfo() {
     if (creditCard) {
         let debt = creditCard.creditLimit - creditCard.currentBalance;
         let usagePercentage = (debt / creditCard.creditLimit) * 100;
-        
+
+        // Función para extraer solo el día de una fecha
+        function getDayOnly(dateString) {
+            const date = new Date(dateString);
+            return date.getDate(); // Devuelve solo el día del mes
+        }
+
         document.getElementById('cardInfo').innerHTML = `
             <p>Tarjeta: ${creditCard.cardName} ****${creditCard.cardLastDigits}</p>
             <p>Crédito Total: $${creditCard.creditLimit}</p>
             <p>Balance Disponible: $${creditCard.currentBalance}</p>
             <p>Deuda Actual: $${debt}</p>
-            <p>Fecha de Corte: ${creditCard.cutoffDate}</p>
-            <p>Fecha de Pago: ${creditCard.paymentDate}</p>
+            <p>Fecha de Corte: ${getDayOnly(creditCard.cutoffDate)}</p>
+            <p>Fecha de Pago: ${getDayOnly(creditCard.paymentDate)}</p>
             <br>
             <button id="deleteCardBtn" class="delete-btn">Eliminar Tarjeta</button>
         `;
@@ -1149,8 +1154,9 @@ function displayCardInfo() {
                 document.getElementById('addCreditCardForm').style.display = 'block';
                 document.getElementById('creditUsage').style.display = 'none';
                 document.getElementById('toggleCardFormBtn').style.display = 'block';
-                    // Eliminar el estado de localStorage
-    localStorage.removeItem('cardAdded');
+                
+                // Eliminar el estado de localStorage
+                localStorage.removeItem('cardAdded');
             }
         });
         
@@ -1159,9 +1165,9 @@ function displayCardInfo() {
         document.getElementById('cardInfo').innerHTML = '<p>No hay tarjeta registrada</p>';
         document.getElementById('addCreditCardForm').style.display = 'block';
         document.getElementById('creditUsage').style.display = 'none';
-        
     }
 }
+
 
 // Mostrar la deuda actual
 function displayDebtInfo() {
