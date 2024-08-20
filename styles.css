@@ -1274,3 +1274,181 @@ body.dark-mode .popup-content button:hover {
   #gotItBtn:hover {
     background-color: #45a049;
   }
+
+  /* styles.css */
+.button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50; /* Verde */
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #45a049;
+}
+
+.floating-action-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #2196F3; /* Azul */
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-action-btn .button {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+}
+
+/* styles.css */
+
+/* Contenedor principal para la sección de Gamificación */
+#gamification-section {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Título principal de la sección */
+#gamification-section h2 {
+    text-align: center;
+    font-size: 28px;
+    color: #444;
+    margin-bottom: 30px;
+}
+
+/* Subtítulos para cada subsección */
+.gamification-subtitle {
+    font-size: 22px;
+    color: #555;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+/* Recompensas y Logros */
+#rewards-section,
+#challenges-section {
+    margin-bottom: 40px;
+}
+
+/* Estilos de las tarjetas de logros */
+.achievement-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+}
+
+.achievement-icon {
+    font-size: 40px;
+    color: #ffcd3c;
+    margin-right: 20px;
+}
+
+.achievement-details {
+    flex-grow: 1;
+}
+
+.achievement-details h4 {
+    font-size: 18px;
+    color: #333;
+    margin: 0 0 10px;
+}
+
+.achievement-details p {
+    font-size: 14px;
+    color: #777;
+    margin: 0;
+}
+
+.reward-status {
+    font-size: 16px;
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* Desafíos Financieros */
+.challenge-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.challenge-card h4 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.challenge-card p {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 15px;
+}
+
+.challenge-card button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.challenge-card button:hover {
+    background-color: #0056b3;
+}
+
+/* Ajustes de estilo para pantallas móviles */
+@media (max-width: 600px) {
+    #gamification-section {
+        padding: 20px;
+    }
+
+    .achievement-icon {
+        font-size: 30px;
+        margin-right: 15px;
+    }
+
+    .achievement-details h4 {
+        font-size: 16px;
+    }
+
+    .achievement-details p {
+        font-size: 13px;
+    }
+
+    .challenge-card h4 {
+        font-size: 16px;
+    }
+
+    .challenge-card p {
+        font-size: 13px;
+    }
+
+    .challenge-card button {
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+}
