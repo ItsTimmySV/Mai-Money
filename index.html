@@ -252,15 +252,35 @@
 
 <div id="welcomeModal" class="modal1">
     <div class="modal-content1">
-      <span class="close1">&times;</span>
-      <h2>¡Bienvenido a Mai Money!</h2>
-      <p>Guarda esta aplicación en tu pantalla de inicio para un acceso más fácil.</p>
-      <div id="tutorial-steps">
-        <!-- El contenido se agregará dinámicamente según el dispositivo -->
-      </div>
-      <button id="gotItBtn">¡Entendido!</button>
+        <span class="close1">&times;</span>
+        <h2>¡Bienvenido a Mai Money!</h2>
+        <div id="tutorialSteps">
+            <div class="tutorial-step active">
+                <p>Este es tu resumen financiero. Aquí puedes ver tu balance, ingresos y gastos.</p>
+                <button id="nextBtn">Siguiente</button>
+            </div>
+            <div class="tutorial-step">
+                <p>Añade transacciones fácilmente utilizando el botón "+" en la esquina inferior derecha.</p>
+                <button id="prevBtn" style="margin-right: 10px;">Anterior</button>
+                <button id="nextBtn">Siguiente</button>
+            </div>
+            <div class="tutorial-step">
+                <p>Consulta tus estadísticas para un análisis rápido de tus finanzas.</p>
+                <button id="prevBtn" style="margin-right: 10px;">Anterior</button>
+                <button id="nextBtn">Siguiente</button>
+            </div>
+            <div class="tutorial-step">
+                <p>Gestiona tus tarjetas de crédito y controla tus gastos con facilidad.</p>
+                <button id="prevBtn" style="margin-right: 10px;">Anterior</button>
+                <button id="finishBtn">Finalizar</button>
+            </div>
+        </div>
     </div>
-  </div>
+</div>
+
+
+
+
 
 
   
