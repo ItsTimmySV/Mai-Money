@@ -105,7 +105,7 @@
 
     <div id="addTransactionModal" class="modal">
         <div class="modal-content">
-            <h2>Agregar Transacción</h2>
+            <h2 id="addTransaction">Agregar Transacción</h2>
             <form id="addTransactionForm">
                 <select id="category" required>
                     <option value="">Seleccione una categoría</option>
@@ -145,7 +145,7 @@
 
     <div id="categoryManagementModal" class="modal">
         <div class="modal-content">
-            <h2>Gestión de Categorías</h2>
+            <h2 id="categoryManagement">Gestión de Categorías</h2>
             <div id="categoryList" class="category-list"></div>
             <form id="addCategoryForm" class="add-category-form">
                 <input type="text" id="newCategoryName" placeholder="Nueva categoría" required>
@@ -177,7 +177,7 @@
 
       <section id="creditCardView" class="section" style="display:none;">
         <div class="card-details">
-            <h2>Tarjeta de Crédito</h2>
+            <h2 id="creditCard">Tarjeta de Crédito</h2>
             <button style="display:block;" id="toggleCardFormBtn">Agregar Tarjeta</button>
             <form id="addCreditCardForm" style="display:none;">
                 <input type="text" id="cardName" placeholder="Nombre de la Tarjeta" required>
@@ -241,17 +241,23 @@
 
 <div id="settingsPopup" class="popup">
     <div class="popup-content">
-        <h2>Ajustes</h2>
+        <h2 id="settings">Ajustes</h2>
         <div id="statusIndicator" class="status">Offline</div>
         <button id="exportBtn">Exportar Datos</button>
         <button id="importBtn">Importar Datos</button>
         <input type="file" id="importInput" style="display: none;" onchange="importData(event)">
         <button id="deleteAllDataBtn">Eliminar Todos los Datos</button>
         <button id="modeToggle" >Modo oscuro y claro<span class="mode-icon"></span></button>
-        <h2>Avanzado</h2>
+        <h2 id="advanced">Avanzado</h2>
         <button id="exportBtn1" class="button">Exportar Datos a CSV</button>
 <input type="file" id="importInput1" style="display: none;" accept=".csv">
 <button id="importBtn1" class="button">Importar Datos desde CSV</button>
+<h2 id="languages">Idiomas</h2>
+<select id="languageSelect">
+    <option value="en">English</option>
+    <option value="es">Español</option>
+    <!-- Añade más opciones de idiomas según tus necesidades -->
+</select>
     </div>
 </div>
 
@@ -286,11 +292,7 @@
 
 
 
-<select id="languageSelect">
-    <option value="en">English</option>
-    <option value="es">Español</option>
-    <!-- Añade más opciones de idiomas según tus necesidades -->
-</select>
+
 
 
 
