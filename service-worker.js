@@ -7,6 +7,8 @@ const urlsToCache = [
   '/img/icon-192x192.png',
   '/img/icon-512x512.png',
   '/manifest.json',
+  '/lang/en.json', // Asegúrate de que esta ruta sea correcta
+  '/lang/es.json', // Asegúrate de que esta ruta sea correcta
   // Otros archivos que quieras cachear
 ];
 
