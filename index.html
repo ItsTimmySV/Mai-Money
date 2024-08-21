@@ -19,7 +19,7 @@
 <body>
     <div class="container">
         <header>
-            <h1 class="app-name">Mai Money</h1>
+            <h1 id="appTitle" class="app-name">Mai Money</h1>
         </header>
 
         <nav class="icon-nav">
@@ -45,21 +45,21 @@
             <section id="transactionsView" class="section">
                 <div class="summary">
                     <div class="balance">
-                        <h2>Balance</h2>
+                        <h2 id="balanceLabel">Balance</h2> <!-- Mueve el ID al h2 -->
                         <p id="total">$0.00</p>
                     </div>
                     <div class="income">
-                        <h3>Ingresos</h3>
+                        <h3 id="incomeLabel">Ingresos</h3> <!-- Mueve el ID al h3 -->
                         <p id="income-total">$0.00</p>
                     </div>
                     <div class="expense">
-                        <h3>Gastos</h3>
+                        <h3 id="expensesLabel">Gastos</h3> <!-- Mueve el ID al h3 -->
                         <p id="expense-total">$0.00</p>
                     </div>
-                </div>
+                </div>                
 
                 <div class="transaction-list">
-                    <h2>Movimientos</h2>
+                    <h3 id="movementsLabel">Movimientos</h3>
                     <ul id="transactions"></ul>
                 </div>
             </section>
