@@ -1493,6 +1493,8 @@ function confirmDataDeletion() {
         updateCharts();
 
         alert('Todos los datos han sido eliminados.');
+                        // Refrescar la página
+                location.reload();
     }
 }
 
