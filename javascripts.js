@@ -1576,5 +1576,93 @@ document.getElementById('showFloatingMenuBtn').addEventListener('click', functio
     });
     
 
+//Local Transacction
 
+function saveTransactionOffline(transaction) {
+    if ('indexedDB' in window) {
+      let dbPromise = idb.open('mai-money-db', 1, upgradeDB => {
+        if (!upgradeDB.objectStoreNames.contains('transactions')) {
+          upgradeDB.createObjectStore('transactions', { autoIncrement: true });
+        }
+      });
+  
+      dbPromise.then(db => {
+        let tx = db.transaction('transactions', 'readwrite');
+        let store = tx.objectStore('transactions');
+        store.put(transaction);
+        return tx.complete;
+      }).then(() => {
+        console.log('Transaction saved offline');
+      });
+    } else {
+      console.log('IndexedDB not supported, falling back to localStorage');
+      let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+      transactions.push(transaction);
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+    }
+  }
+
+  // Detección de Conectividad y Sincronización
+
+  window.addEventListener('online', () => {
+    syncTransactions();
+  });
+  
+  function syncTransactions() {
+    if ('indexedDB' in window) {
+      let dbPromise = idb.open('mai-money-db', 1);
+  
+      dbPromise.then(db => {
+        let tx = db.transaction('transactions', 'readonly');
+        let store = tx.objectStore('transactions');
+        return store.getAll();
+      }).then(transactions => {
+        // Aquí deberías enviar las transacciones al servidor
+        transactions.forEach(transaction => {
+          // Suponiendo que tienes una función sendTransaction que envía la transacción al servidor
+          sendTransaction(transaction).then(() => {
+            // Una vez que la transacción ha sido enviada, eliminarla de IndexedDB
+            deleteTransaction(transaction.id);
+          });
+        });
+      });
+    } else {
+      let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+      transactions.forEach(transaction => {
+        // Suponiendo que tienes una función sendTransaction que envía la transacción al servidor
+        sendTransaction(transaction).then(() => {
+          // Una vez que la transacción ha sido enviada, eliminarla de localStorage
+          transactions = transactions.filter(t => t.id !== transaction.id);
+          localStorage.setItem('transactions', JSON.stringify(transactions));
+        });
+      });
+    }
+  }
+  
+  function deleteTransaction(id) {
+    let dbPromise = idb.open('mai-money-db', 1);
+  
+    dbPromise.then(db => {
+      let tx = db.transaction('transactions', 'readwrite');
+      let store = tx.objectStore('transactions');
+      store.delete(id);
+      return tx.complete;
+    });
+  }
+  
+
+  //Interfaz de Usuario
+
+  function updateOnlineStatus() {
+    const status = navigator.onLine ? "Online" : "Offline";
+    document.getElementById('statusIndicator').textContent = status;
+  }
+  
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    updateOnlineStatus();
+  });
+  
 
