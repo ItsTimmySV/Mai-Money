@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mai-money-cache-v3';
+const CACHE_NAME = 'mai-money-cache-v4';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -10,29 +10,18 @@ const urlsToCache = [
   // Otros archivos que quieras cachear
 ];
 
+// Instalación del service worker y cacheo de archivos
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
         return cache.addAll(urlsToCache);
       })
+      .then(() => self.skipWaiting()) // Fuerza la activación inmediata
   );
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Return the cached version, or fetch from network
-        return response || fetch(event.request);
-      })
-      .catch(() => {
-        // Si la solicitud falla, devuelve la página de inicio como fallback
-        return caches.match('/index.html');
-      })
-  );
-});
-
+// Activación del service worker
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -45,5 +34,20 @@ self.addEventListener('activate', event => {
         })
       );
     })
+    .then(() => self.clients.claim()) // Reclama control de las páginas abiertas
+  );
+});
+
+// Intercepción de peticiones de red
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        return response || fetch(event.request);
+      })
+      .catch(() => {
+        // Si la solicitud falla (offline y no en caché), servir `index.html`
+        return caches.match('/index.html');
+      })
   );
 });
