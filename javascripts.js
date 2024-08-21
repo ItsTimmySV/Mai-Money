@@ -1385,7 +1385,9 @@ function importData(event) {
     reader.onload = function(e) {
         const content = e.target.result;
         try {
+            // Intentar parsear como JSON
             const data = JSON.parse(content);
+            // Si esto funciona, es un JSON válido y no un CSV
             transactions = data.transactions || [];
             categories = data.categories || [];
             localStorage.setItem('creditCard', JSON.stringify(data.creditCard));
@@ -1414,8 +1416,37 @@ function importData(event) {
 
             alert('Datos JSON importados con éxito');
         } catch (jsonError) {
-            console.error('Error al importar datos:', jsonError);
-            alert('Error al importar datos. Por favor, asegúrate de que el archivo es válido.');
+            // Si el JSON.parse falla, asumimos que es un CSV
+            try {
+                const rows = content.split('\n').filter(row => row.trim().length > 0);
+                const csvTransactions = [];
+
+                rows.forEach((row, index) => {
+                    if (index === 0) return; // Saltar la fila de encabezados
+
+                    const cols = row.split(',');
+                    if (cols.length >= 4) {
+                        const transaction = {
+                            date: cols[0],
+                            category: cols[1],
+                            type: cols[2],
+                            amount: parseFloat(cols[3]),
+                            comment: cols[4] ? cols[4].trim() : ''
+                        };
+                        csvTransactions.push(transaction);
+                    }
+                });
+
+                transactions = [];
+                csvTransactions.forEach(transaction => {
+                    saveTransaction(transaction);
+                });
+
+                alert('Importación de CSV completada.');
+            } catch (csvError) {
+                console.error('Error al importar datos como CSV:', csvError);
+                alert('Error al importar datos. Por favor, asegúrate de que el archivo es válido.');
+            }
         } finally {
             isImporting = false; // Resetear el flag después de completar la importación
         }
