@@ -1654,8 +1654,16 @@ function saveTransactionOffline(transaction) {
   //Interfaz de Usuario
 
   function updateOnlineStatus() {
-    const status = navigator.onLine ? "Online" : "Offline";
-    document.getElementById('statusIndicator').textContent = status;
+    const statusIndicator = document.getElementById('statusIndicator');
+    if (navigator.onLine) {
+      statusIndicator.textContent = "Online";
+      statusIndicator.classList.remove('offline');
+      statusIndicator.classList.add('online');
+    } else {
+      statusIndicator.textContent = "Offline";
+      statusIndicator.classList.remove('online');
+      statusIndicator.classList.add('offline');
+    }
   }
   
   window.addEventListener('online', updateOnlineStatus);
@@ -1664,5 +1672,6 @@ function saveTransactionOffline(transaction) {
   document.addEventListener('DOMContentLoaded', () => {
     updateOnlineStatus();
   });
+  
   
 
