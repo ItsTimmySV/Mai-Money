@@ -1349,17 +1349,22 @@ window.onload = function() {
 
 // Función para exportar datos
 function exportData() {
+    const currentMode = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+    const currentLanguage = document.getElementById('languageSelect').value;
+
     const data = {
         transactions: transactions,
         categories: categories,
         creditCard: JSON.parse(localStorage.getItem('creditCard')),
         transactions1: JSON.parse(localStorage.getItem('transactions1')),
-        archivedMonths: archivedMonths
+        archivedMonths: archivedMonths,
+        mode: currentMode,
+        language: currentLanguage
     };
 
     const dataStr = JSON.stringify(data);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
     const exportFileDefaultName = 'mai_money_data.json';
 
     const linkElement = document.createElement('a');
@@ -1367,6 +1372,7 @@ function exportData() {
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
 }
+
 
 // Función para importar datos
 function importData(event) {
@@ -1386,6 +1392,17 @@ function importData(event) {
             localStorage.setItem('transactions1', JSON.stringify(data.transactions1 || []));
             archivedMonths = data.archivedMonths || {};
 
+            // Aplicar modo claro/oscuro
+            if (data.mode) {
+                document.body.classList.toggle('dark-mode', data.mode === 'dark');
+            }
+
+            // Aplicar configuración de idioma
+            if (data.language) {
+                document.getElementById('languageSelect').value = data.language;
+                loadLanguage(data.language); // Asumiendo que tienes una función para cargar el idioma
+            }
+
             saveTransactions();
             saveCategories();
             updateUI();
@@ -1397,34 +1414,8 @@ function importData(event) {
 
             alert('Datos JSON importados con éxito');
         } catch (jsonError) {
-            try {
-                const rows = content.split('\n');
-                const csvTransactions = [];
-
-                rows.forEach((row, index) => {
-                    if (index === 0) return;
-
-                    const cols = row.split(',');
-                    const transaction = {
-                        date: cols[0],
-                        category: cols[1],
-                        type: cols[2],
-                        amount: parseFloat(cols[3]),
-                        comment: cols[4] ? cols[4].trim() : ''
-                    };
-                    csvTransactions.push(transaction);
-                });
-
-                transactions = [];
-                csvTransactions.forEach(transaction => {
-                    saveTransaction(transaction);
-                });
-
-                alert('Importación de CSV completada.');
-            } catch (csvError) {
-                console.error('Error al importar datos:', csvError);
-                alert('Error al importar datos. Por favor, asegúrate de que el archivo es válido.');
-            }
+            console.error('Error al importar datos:', jsonError);
+            alert('Error al importar datos. Por favor, asegúrate de que el archivo es válido.');
         } finally {
             isImporting = false; // Resetear el flag después de completar la importación
         }
@@ -1432,6 +1423,7 @@ function importData(event) {
 
     reader.readAsText(file);
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1808,6 +1800,8 @@ function importFromCSV(event) {
 }
 
 
+
+
 function saveTransaction(transaction) {
     // Agrega la transacción al array global `transactions`
     transactions.push(transaction);
@@ -1857,7 +1851,13 @@ function applyTranslations(translations) {
         creditCardBtn: document.querySelector('#showCreditCardBtn span'),
         exportCSVBtn: document.getElementById('exportBtn1'),
         importCSVBtn: document.getElementById('importBtn1'),
-        movementsLabel: document.getElementById('movementsLabel')
+        movementsLabel: document.getElementById('movementsLabel'),
+        addTransaction: document.getElementById('addTransaction'),
+        categoryManagement: document.getElementById('categoryManagement'),
+        settings: document.getElementById('settings'),
+        advanced: document.getElementById('advanced'),
+        creditCard: document.getElementById('creditCard'),
+        languages: document.getElementById('languages')
     };
 
     for (const key in elements) {
@@ -1866,6 +1866,7 @@ function applyTranslations(translations) {
         }
     }
 }
+
 
 
 
