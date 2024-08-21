@@ -1815,3 +1815,42 @@ function saveTransaction(transaction) {
   
   document.getElementById('importInput').addEventListener('change', importFromCSV);
   
+//TRADUCIon
+
+let currentLang = localStorage.getItem('lang') || navigator.language.substring(0, 2) || 'en';
+
+function loadLanguage(lang) {
+    fetch(`./lang/${lang}.json`)
+        .then(response => response.json())
+        .then(translations => {
+            applyTranslations(translations);
+            localStorage.setItem('lang', lang); // Guardar la preferencia del idioma
+        })
+        .catch(error => {
+            console.error('Error al cargar las traducciones:', error);
+        });
+}
+
+function applyTranslations(translations) {
+    document.getElementById('appTitle').textContent = translations.appTitle;
+    document.getElementById('balanceLabel').textContent = translations.balance;
+    document.getElementById('incomeLabel').textContent = translations.income;
+    document.getElementById('expensesLabel').textContent = translations.expenses;
+    document.getElementById('transactionsBtn').textContent = translations.transactions;
+    document.getElementById('calendarBtn').textContent = translations.calendar;
+    document.getElementById('statisticsBtn').textContent = translations.statistics;
+    document.getElementById('creditCardBtn').textContent = translations.creditCard;
+    document.getElementById('exportCSVBtn').textContent = translations.exportCSV;
+    document.getElementById('importCSVBtn').textContent = translations.importCSV;
+}
+
+// Cargar el idioma seleccionado o detectado
+loadLanguage(currentLang);
+
+document.getElementById('languageSelect').addEventListener('change', (event) => {
+    const selectedLang = event.target.value;
+    loadLanguage(selectedLang);
+});
+
+
+document.getElementById('languageSelect').value = currentLang;
