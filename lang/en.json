@@ -9,5 +9,13 @@
     "creditCardBtn": "Credit Card",
     "exportCSVBtn": "Export Data to CSV",
     "importCSVBtn": "Import Data from CSV",
-    "movementsLabel": "Movements"
+    "movementsLabel": "Movements",
+    "addTransaction": "Add Transaction",
+    "categoryManagement": "Category Management",
+    "settings": "Settings",
+    "advanced": "Advanced",
+    "creditCard": "Credit Card",
+    "languages": "Languages"
+
+    
 }
