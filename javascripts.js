@@ -10,6 +10,8 @@ let isImporting = false; // Flag para evitar ejecuciones múltiples
 
 
 
+
+
 // DOM Elements
 const transactionsView = document.getElementById('transactionsView');
 const statsView = document.getElementById('statsView');
@@ -290,7 +292,11 @@ function showStats() {
 
 // Crear o actualizar el gráfico de categorías
 function createCategoryChart() {
-    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const ctx = document.getElementById('categoryChart')?.getContext('2d');
+    if (!ctx) {
+        console.error('El canvas para el gráfico de categoría no está disponible.');
+        return;
+    }
     const isDarkMode = document.body.classList.contains('dark-mode');
 
     const categoryData = categories.map(category => {
@@ -735,6 +741,8 @@ function showCalendar() {
     
     renderCalendar();
   }
+
+  
   
   // Asegúrate de que el botón del calendario llame a esta función
   document.getElementById('showCalendarBtn').addEventListener('click', showCalendar);
@@ -1267,6 +1275,8 @@ document.getElementById('showTransactionsBtn').addEventListener('click', functio
     document.getElementById('showFloatingMenuBtn').style.display = 'block';
 });
 
+
+
 document.getElementById('showCalendarBtn').addEventListener('click', function() {
     showSection('calendarView', 'showCalendarBtn');
     document.getElementById('addTransactionBtn').style.display = 'none';
@@ -1429,6 +1439,8 @@ document.addEventListener('DOMContentLoaded', () => {
     importInput.replaceWith(importInput.cloneNode(true)); // Esto reemplaza el input para asegurarse de que no haya listeners duplicados
     document.getElementById('importInput').addEventListener('change', importData);
 });
+
+
 
 
 
@@ -1814,6 +1826,8 @@ function saveTransaction(transaction) {
   });
   
   document.getElementById('importInput').addEventListener('change', importFromCSV);
+
+
   
 //TRADUCIon
 
@@ -1832,17 +1846,30 @@ function loadLanguage(lang) {
 }
 
 function applyTranslations(translations) {
-    document.getElementById('appTitle').textContent = translations.appTitle;
-    document.getElementById('balanceLabel').textContent = translations.balance;
-    document.getElementById('incomeLabel').textContent = translations.income;
-    document.getElementById('expensesLabel').textContent = translations.expenses;
-    document.getElementById('transactionsBtn').textContent = translations.transactions;
-    document.getElementById('calendarBtn').textContent = translations.calendar;
-    document.getElementById('statisticsBtn').textContent = translations.statistics;
-    document.getElementById('creditCardBtn').textContent = translations.creditCard;
-    document.getElementById('exportCSVBtn').textContent = translations.exportCSV;
-    document.getElementById('importCSVBtn').textContent = translations.importCSV;
+    const elements = {
+        appTitle: document.getElementById('appTitle'),
+        balanceLabel: document.getElementById('balanceLabel'),
+        incomeLabel: document.getElementById('incomeLabel'),
+        expensesLabel: document.getElementById('expensesLabel'),
+        transactionsBtn: document.getElementById('showTransactionsBtn'),
+        calendarBtn: document.getElementById('showCalendarBtn'),
+        statisticsBtn: document.getElementById('showStatsBtn'),
+        creditCardBtn: document.getElementById('showCreditCardBtn'),
+        exportCSVBtn: document.getElementById('exportBtn1'),
+        importCSVBtn: document.getElementById('importBtn1'),
+        movementsLabel: document.getElementById('movementsLabel')  // Añadir esta línea
+    };
+
+    for (const key in elements) {
+        if (elements[key]) {
+            elements[key].textContent = translations[key];
+        }
+    }
 }
+
+
+
+
 
 // Cargar el idioma seleccionado o detectado
 loadLanguage(currentLang);
