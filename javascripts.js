@@ -1565,65 +1565,48 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
 
-// javascripts.js
+ // Blur tutorial
 
-// Arreglo para almacenar los logros completados
-const achievements = [
-    {
-        name: "Ahorrador Consistente",
-        description: "Has ahorrado todos los días durante un mes.",
-        icon: "🏆",
-        status: "Completado"
-    },
-    {
-        name: "Meta de Ahorro Alcanzada",
-        description: "Has alcanzado tu meta de ahorro anual.",
-        icon: "💰",
-        status: "En Progreso"
-    }
-];
-
-// Arreglo para almacenar los desafíos financieros
-const challenges = [
-    {
-        name: "No Gastar en Café",
-        description: "No compres café en cafeterías durante una semana.",
-        status: "No Participando"
-    },
-    {
-        name: "Ahorro de Emergencia",
-        description: "Ahorra el 10% de tus ingresos este mes para un fondo de emergencia.",
-        status: "No Participando"
-    }
-];
-
-// Función para manejar la participación en un desafío
-function participateInChallenge(challengeName) {
-    const challenge = challenges.find(ch => ch.name === challengeName);
-    if (challenge) {
-        challenge.status = "Participando";
-        alert(`Ahora estás participando en el desafío: ${challenge.name}`);
-        updateChallengeStatus(challengeName);
-    }
-}
-
-// Función para actualizar el estado de los desafíos
-function updateChallengeStatus(challengeName) {
-    const challengeElement = document.querySelector(`.challenge-card h4:contains("${challengeName}")`).parentNode;
-    if (challengeElement) {
-        challengeElement.querySelector('button').textContent = "Participando";
-        challengeElement.querySelector('button').disabled = true;
-        challengeElement.querySelector('button').style.backgroundColor = "#28a745";
-    }
-}
-
-// Al cargar la página, inicializa los desafíos y logros
-document.addEventListener("DOMContentLoaded", function() {
-    achievements.forEach(achievement => {
-        // Aquí puedes inicializar los logros desde un backend o base de datos
-    });
-
-    challenges.forEach(challenge => {
-        // Aquí puedes inicializar los desafíos desde un backend o base de datos
-    });
-});
+ const content = document.querySelectorAll('main, header, nav, .float-btn'); // Selecciona todos los elementos que deben desenfocarse
+ const modal = document.getElementById("welcomeModal");
+ const closeBtn = document.getElementsByClassName("close1")[0];
+ const gotItBtn = document.getElementById("gotItBtn");
+ 
+ // Función para agregar la clase blur
+ function applyBlur() {
+   content.forEach(el => el.classList.add('blur-background'));
+ }
+ 
+ // Función para quitar la clase blur
+ function removeBlur() {
+   content.forEach(el => el.classList.remove('blur-background'));
+ }
+ 
+ // Comprobar si el usuario ya ha visto el tutorial
+ if (!localStorage.getItem('tutorialShown')) {
+   // Mostrar el modal al cargar la página y aplicar blur al fondo
+   modal.style.display = "block";
+   applyBlur();
+ 
+   // Guardar en localStorage que el tutorial ya fue mostrado
+   localStorage.setItem('tutorialShown', 'true');
+ }
+ 
+ // Cerrar el modal y quitar el efecto blur
+ closeBtn.onclick = function() {
+   modal.style.display = "none";
+   removeBlur();
+ };
+ 
+ gotItBtn.onclick = function() {
+   modal.style.display = "none";
+   removeBlur();
+ };
+ 
+ // Cerrar el modal al hacer clic fuera de él y quitar el blur
+ window.onclick = function(event) {
+   if (event.target == modal) {
+     modal.style.display = "none";
+     removeBlur();
+   }
+ };
