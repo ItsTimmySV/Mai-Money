@@ -1675,3 +1675,83 @@ function saveTransactionOffline(transaction) {
   
   
 
+//Import/Export CSV
+
+function exportToCSV(transactions) {
+    const headers = ['Fecha', 'Categoría', 'Tipo', 'Monto', 'Comentario'];
+    const csvRows = [];
+  
+    // Añadir encabezados
+    csvRows.push(headers.join(','));
+  
+    // Añadir datos de las transacciones
+    transactions.forEach(transaction => {
+      const row = [
+        transaction.date,
+        transaction.category,
+        transaction.type,
+        transaction.amount,
+        transaction.comment || '' // Agregar comentario si existe, si no, dejar vacío
+      ];
+      csvRows.push(row.join(','));
+    });
+  
+    // Unir todas las filas en un solo string
+    const csvContent = csvRows.join('\n');
+  
+    // Crear un Blob y generar un enlace de descarga
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'transacciones.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  document.getElementById('exportBtn1').addEventListener('click', () => {
+    const transactions = getAllTransactions(); // Suponiendo que tienes una función que recupera todas las transacciones
+    exportToCSV(transactions);
+  });
+
+  function importFromCSV(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+      const csvContent = e.target.result;
+      const rows = csvContent.split('\n');
+      const transactions = [];
+  
+      rows.forEach((row, index) => {
+        if (index === 0) return; // Saltar la fila de encabezados
+  
+        const cols = row.split(',');
+        const transaction = {
+          date: cols[0],
+          category: cols[1],
+          type: cols[2],
+          amount: parseFloat(cols[3]),
+          comment: cols[4] || ''
+        };
+        transactions.push(transaction);
+      });
+  
+      // Aquí deberías agregar cada transacción al almacenamiento de tu aplicación
+      transactions.forEach(transaction => {
+        saveTransaction(transaction); // Suponiendo que tienes una función para guardar transacciones
+      });
+  
+      alert('Importación de CSV completada.');
+    };
+  
+    reader.readAsText(file);
+  }
+
+  document.getElementById('importBtn1').addEventListener('click', () => {
+    document.getElementById('importInput').click();
+  });
+  
+  document.getElementById('importInput').addEventListener('change', importFromCSV);
+  
