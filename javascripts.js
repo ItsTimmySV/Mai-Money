@@ -6,6 +6,7 @@ let categoryChartInstance = null;
 let categories = ['Comida', 'Transporte', 'Entretenimiento', 'Servicios', 'Otros'];
 let calendarInstance = null;
 let archivedMonths = {};
+let isImporting = false; // Flag para evitar ejecuciones múltiples
 
 
 
@@ -1359,25 +1360,24 @@ function exportData() {
 
 // Función para importar datos
 function importData(event) {
+    if (isImporting) return; // Si ya estamos importando, no continuar
+    isImporting = true;
+
     const file = event.target.files[0];
     const reader = new FileReader();
 
     reader.onload = function(e) {
+        const content = e.target.result;
         try {
-            const data = JSON.parse(e.target.result);
-            
-            // Restaurar datos
-            transactions = data.transactions;
-            categories = data.categories;
+            const data = JSON.parse(content);
+            transactions = data.transactions || [];
+            categories = data.categories || [];
             localStorage.setItem('creditCard', JSON.stringify(data.creditCard));
-            localStorage.setItem('transactions1', JSON.stringify(data.transactions1));
-            archivedMonths = data.archivedMonths;
+            localStorage.setItem('transactions1', JSON.stringify(data.transactions1 || []));
+            archivedMonths = data.archivedMonths || {};
 
-            // Guardar datos en localStorage
             saveTransactions();
             saveCategories();
-
-            // Actualizar la interfaz
             updateUI();
             displayCardInfo();
             displayDebtInfo();
@@ -1385,15 +1385,53 @@ function importData(event) {
             updateCategoryOptions();
             updateCharts();
 
-            alert('Datos importados con éxito');
-        } catch (error) {
-            console.error('Error al importar datos:', error);
-            alert('Error al importar datos. Por favor, asegúrate de que el archivo es válido.');
+            alert('Datos JSON importados con éxito');
+        } catch (jsonError) {
+            try {
+                const rows = content.split('\n');
+                const csvTransactions = [];
+
+                rows.forEach((row, index) => {
+                    if (index === 0) return;
+
+                    const cols = row.split(',');
+                    const transaction = {
+                        date: cols[0],
+                        category: cols[1],
+                        type: cols[2],
+                        amount: parseFloat(cols[3]),
+                        comment: cols[4] ? cols[4].trim() : ''
+                    };
+                    csvTransactions.push(transaction);
+                });
+
+                transactions = [];
+                csvTransactions.forEach(transaction => {
+                    saveTransaction(transaction);
+                });
+
+                alert('Importación de CSV completada.');
+            } catch (csvError) {
+                console.error('Error al importar datos:', csvError);
+                alert('Error al importar datos. Por favor, asegúrate de que el archivo es válido.');
+            }
+        } finally {
+            isImporting = false; // Resetear el flag después de completar la importación
         }
     };
 
     reader.readAsText(file);
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const importInput = document.getElementById('importInput');
+    importInput.replaceWith(importInput.cloneNode(true)); // Esto reemplaza el input para asegurarse de que no haya listeners duplicados
+    document.getElementById('importInput').addEventListener('change', importData);
+});
+
+
+
 
 // Función para manejar el clic en el botón de importar
 function handleImportClick() {
@@ -1710,44 +1748,66 @@ function exportToCSV(transactions) {
     document.body.removeChild(link);
   }
 
-  document.getElementById('exportBtn1').addEventListener('click', () => {
-    const transactions = getAllTransactions(); // Suponiendo que tienes una función que recupera todas las transacciones
-    exportToCSV(transactions);
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('exportBtn1').addEventListener('click', () => {
+      const transactions = getAllTransactions(); // Suponiendo que tienes una función que recupera todas las transacciones
+      exportToCSV(transactions);
+    });
   });
 
-  function importFromCSV(event) {
+  function getAllTransactions() {
+    return transactions; // Retorna el array global que contiene todas las transacciones
+}
+
+  
+
+function importFromCSV(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
-    
+
     reader.onload = function(e) {
-      const csvContent = e.target.result;
-      const rows = csvContent.split('\n');
-      const transactions = [];
-  
-      rows.forEach((row, index) => {
-        if (index === 0) return; // Saltar la fila de encabezados
-  
-        const cols = row.split(',');
-        const transaction = {
-          date: cols[0],
-          category: cols[1],
-          type: cols[2],
-          amount: parseFloat(cols[3]),
-          comment: cols[4] || ''
-        };
-        transactions.push(transaction);
-      });
-  
-      // Aquí deberías agregar cada transacción al almacenamiento de tu aplicación
-      transactions.forEach(transaction => {
-        saveTransaction(transaction); // Suponiendo que tienes una función para guardar transacciones
-      });
-  
-      alert('Importación de CSV completada.');
+        const csvContent = e.target.result;
+        const rows = csvContent.split('\n');
+        const transactions = [];
+
+        rows.forEach((row, index) => {
+            if (index === 0) return; // Saltar la fila de encabezados
+
+            const cols = row.split(',');
+            const transaction = {
+                date: cols[0],
+                category: cols[1],
+                type: cols[2],
+                amount: parseFloat(cols[3]),
+                comment: cols[4] ? cols[4].trim() : '' // Limpia cualquier espacio en blanco
+            };
+            transactions.push(transaction);
+        });
+
+        // Guardar las transacciones importadas
+        transactions.forEach(transaction => {
+            saveTransaction(transaction); // Guarda cada transacción
+        });
+
+        alert('Importación de CSV completada.');
     };
-  
+
     reader.readAsText(file);
-  }
+}
+
+
+function saveTransaction(transaction) {
+    // Agrega la transacción al array global `transactions`
+    transactions.push(transaction);
+
+    // Guarda las transacciones en el almacenamiento local
+    saveTransactions(); // Asegúrate de que esta función guarda `transactions` en localStorage o IndexedDB
+
+    // Actualiza la interfaz de usuario para reflejar la nueva transacción
+    updateUI();
+}
+
+
 
   document.getElementById('importBtn1').addEventListener('click', () => {
     document.getElementById('importInput').click();
