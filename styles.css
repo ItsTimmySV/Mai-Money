@@ -1359,3 +1359,12 @@ body.dark-mode .popup-content button:hover {
 #prevBtn:hover {
     background-color: darkred;
 }
+
+.online {
+    color: green;
+  }
+  
+  .offline {
+    color: red;
+  }
+  
