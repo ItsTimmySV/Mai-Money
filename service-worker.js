@@ -1,5 +1,4 @@
-const CACHE_NAME = 'v2';
-
+const CACHE_NAME = 'mai-money-cache-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -8,7 +7,7 @@ const urlsToCache = [
   '/img/icon-192x192.png',
   '/img/icon-512x512.png',
   '/manifest.json',
-  // Añadir más archivos si es necesario
+  // Otros archivos que quieras cachear
 ];
 
 self.addEventListener('install', event => {
@@ -24,12 +23,12 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request).catch(() => {
-          return caches.match('/index.html');
-        });
+        // Return the cached version, or fetch from network
+        return response || fetch(event.request);
+      })
+      .catch(() => {
+        // Si la solicitud falla, devuelve la página de inicio como fallback
+        return caches.match('/index.html');
       })
   );
 });
