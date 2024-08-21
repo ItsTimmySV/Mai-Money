@@ -1,0 +1,12 @@
+{
+    "appTitle": "Mai Money",
+    "balance": "Balance",
+    "income": "Income",
+    "expenses": "Expenses",
+    "transactions": "Transactions",
+    "calendar": "Calendar",
+    "statistics": "Statistics",
+    "creditCard": "Credit Card",
+    "exportCSV": "Export Data to CSV",
+    "importCSV": "Import Data from CSV"
+}
