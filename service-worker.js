@@ -1,15 +1,14 @@
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open('v1').then(cache => {
+    caches.open('v2').then(cache => {
       return cache.addAll([
         '/index.html',
         '/styles.css',
         '/javascripts.js',
         '/img/icon-192x192.png',
         '/img/icon-512x512.png',
-        '/img/money-bag.png',
         '/manifest.json',
-        // Agrega aquí los demás archivos que quieres cachear
+        // Otros archivos que quieras cachear
       ]);
     })
   );
