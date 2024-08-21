@@ -1,12 +1,13 @@
 {
     "appTitle": "Mai Money",
-    "balance": "Balance",
-    "income": "Income",
-    "expenses": "Expenses",
-    "transactions": "Transactions",
-    "calendar": "Calendar",
-    "statistics": "Statistics",
-    "creditCard": "Credit Card",
-    "exportCSV": "Export Data to CSV",
-    "importCSV": "Import Data from CSV"
+    "balanceLabel": "Balance",
+    "incomeLabel": "Income",
+    "expensesLabel": "Expenses",
+    "transactionsBtn": "Transactions",
+    "calendarBtn": "Calendar",
+    "statisticsBtn": "Statistics",
+    "creditCardBtn": "Credit Card",
+    "exportCSVBtn": "Export Data to CSV",
+    "importCSVBtn": "Import Data from CSV",
+    "movementsLabel": "Movements"
 }
