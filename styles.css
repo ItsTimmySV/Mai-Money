@@ -1368,3 +1368,42 @@ body.dark-mode .popup-content button:hover {
     color: red;
   }
   
+/* Estilos generales para el select */
+#languageSelect {
+    appearance: none; /* Elimina el estilo por defecto */
+    background-color: var(--bg-color); /* Usar color de fondo dinámico */
+    color: var(--text-color); /* Usar color de texto dinámico */
+    border: 2px solid var(--primary-color); /* Borde principal */
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Estilo para la opción seleccionada y el dropdown */
+#languageSelect option {
+    background-color: var(--bg-color); /* Usar color de fondo dinámico */
+    color: var(--text-color); /* Usar color de texto dinámico */
+}
+
+/* Cambios de color en modo hover */
+#languageSelect:hover {
+    background-color: var(--primary-color); /* Cambia el fondo al color principal en hover */
+    color: var(--bg-color); /* Cambia el texto al color de fondo */
+    border-color: var(--bg-color); /* Cambia el borde al color de fondo */
+}
+
+/* Estilos para el modo claro */
+body.light-mode {
+    --bg-color: #ffffff; /* Fondo claro */
+    --text-color: #333333; /* Texto oscuro */
+    --primary-color: #4caf50; /* Color principal */
+}
+
+/* Estilos para el modo oscuro */
+body.dark-mode {
+    --bg-color: #333333; /* Fondo oscuro */
+    --text-color: #ffffff; /* Texto claro */
+    --primary-color: #4caf50; /* Color principal */
+}
