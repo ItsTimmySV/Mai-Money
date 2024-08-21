@@ -1851,13 +1851,13 @@ function applyTranslations(translations) {
         balanceLabel: document.getElementById('balanceLabel'),
         incomeLabel: document.getElementById('incomeLabel'),
         expensesLabel: document.getElementById('expensesLabel'),
-        transactionsBtn: document.getElementById('showTransactionsBtn'),
-        calendarBtn: document.getElementById('showCalendarBtn'),
-        statisticsBtn: document.getElementById('showStatsBtn'),
-        creditCardBtn: document.getElementById('showCreditCardBtn'),
+        transactionsBtn: document.querySelector('#showTransactionsBtn span'),
+        calendarBtn: document.querySelector('#showCalendarBtn span'),
+        statisticsBtn: document.querySelector('#showStatsBtn span'),
+        creditCardBtn: document.querySelector('#showCreditCardBtn span'),
         exportCSVBtn: document.getElementById('exportBtn1'),
         importCSVBtn: document.getElementById('importBtn1'),
-        movementsLabel: document.getElementById('movementsLabel')  // Añadir esta línea
+        movementsLabel: document.getElementById('movementsLabel')
     };
 
     for (const key in elements) {
