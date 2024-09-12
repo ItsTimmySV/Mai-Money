@@ -166,36 +166,40 @@ function showMap() {
 
 
 function setUserRole(role) {
-    userRole = role;
-    localStorage.setItem('userRole', role);
-    document.getElementById('roleSelection').classList.add('hidden');
+        userRole = role;
+        localStorage.setItem('userRole', role);
+        document.getElementById('roleSelection').classList.add('hidden');
 
-    // Ocultar elementos no necesarios para el conductor
-    document.getElementById('exitBtnContainer').classList.add('hidden');  // Ocultar botón "Salir" para conductores
-    document.getElementById('mapContainer').classList.add('hidden');
-    document.getElementById('mobileTabBar').classList.add('hidden');
+        // Ocultar elementos no necesarios para el conductor
+        document.getElementById('exitBtnContainer').classList.add('hidden');
+        document.getElementById('mapContainer').classList.add('hidden');
+        document.getElementById('mobileTabBar').classList.add('hidden');
 
-    if (role === 'driver') {
-        document.getElementById('authButtons').classList.remove('hidden');
-        document.getElementById('driverControls').classList.remove('hidden');
-    } else if (role === 'user') {
-        showMap();
-        document.getElementById('exitBtnContainer').classList.remove('hidden');  // Mostrar el botón de salir para usuarios
+        if (role === 'driver') {
+            document.getElementById('authButtons').classList.remove('hidden');
+            document.getElementById('driverControls').classList.remove('hidden');
+        } else if (role === 'user') {
+            showMap();
+            document.getElementById('exitBtnContainer').classList.remove('hidden');
+        }
+
+        location.reload();  // Recargar la página después de seleccionar el rol
     }
-}
 
 
 
 
 
-document.getElementById('exitBtn').addEventListener('click', () => {
-    userRole = null;
-    localStorage.removeItem('userRole');  // Eliminar el rol guardado en localStorage
-    document.getElementById('mapContainer').classList.add('hidden');
-    document.getElementById('exitBtnContainer').classList.add('hidden');
-    document.getElementById('mobileTabBar').classList.add('hidden');
-    document.getElementById('roleSelection').classList.remove('hidden'); // Volver a mostrar la selección de rol
-});
+    document.getElementById('exitBtn').addEventListener('click', () => {
+        userRole = null;
+        localStorage.removeItem('userRole');
+        document.getElementById('mapContainer').classList.add('hidden');
+        document.getElementById('exitBtnContainer').classList.add('hidden');
+        document.getElementById('mobileTabBar').classList.add('hidden');
+        document.getElementById('roleSelection').classList.remove('hidden');
+        location.reload();  // Recargar la página al hacer clic en "Salir"
+    });
+
 
 
 
@@ -218,45 +222,48 @@ document.getElementById('exitBtn').addEventListener('click', () => {
         }
 
         function register() {
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    hideRegisterModal();
-                    alert('Registro exitoso');
-                })
-                .catch((error) => {
-                    alert('Error en el registro: ' + error.message);
-                });
-        }
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                hideRegisterModal();
+                alert('Registro exitoso');
+                location.reload();  // Recargar la página después de registrarse
+            })
+            .catch((error) => {
+                alert('Error en el registro: ' + error.message);
+            });
+    }
 
         function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    hideLoginModal();
-                })
-                .catch((error) => {
-                    alert('Error en el inicio de sesión: ' + error.message);
-                });
-        }
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                hideLoginModal();
+                location.reload();  // Recargar la página después de iniciar sesión
+            })
+            .catch((error) => {
+                alert('Error en el inicio de sesión: ' + error.message);
+            });
+    }
 
-        function logout() {
-    auth.signOut().then(() => {
-        document.getElementById('userInfo').classList.add('hidden');
-        document.getElementById('authButtons').classList.remove('hidden');
-        document.getElementById('driverControls').classList.add('hidden');
-        stopSharingLocation();
-        document.getElementById('mapContainer').classList.add('hidden');
-        document.getElementById('exitBtnContainer').classList.add('hidden'); // Mantener oculto el botón salir después de cerrar sesión
-        document.getElementById('mobileTabBar').classList.add('hidden');
-        document.getElementById('roleSelection').classList.remove('hidden'); // Volver a mostrar la selección de rol
-        localStorage.removeItem('userRole'); // Eliminar el rol guardado
-    }).catch((error) => {
-        console.error('Error al cerrar sesión:', error);
-    });
-}
+    function logout() {
+        auth.signOut().then(() => {
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('authButtons').classList.remove('hidden');
+            document.getElementById('driverControls').classList.add('hidden');
+            stopSharingLocation();
+            document.getElementById('mapContainer').classList.add('hidden');
+            document.getElementById('exitBtnContainer').classList.add('hidden');
+            document.getElementById('mobileTabBar').classList.add('hidden');
+            document.getElementById('roleSelection').classList.remove('hidden');
+            localStorage.removeItem('userRole');
+            location.reload();  // Recargar la página después de cerrar sesión
+        }).catch((error) => {
+            console.error('Error al cerrar sesión:', error);
+        });
+    }
 
 
 function startSharingLocation() {
