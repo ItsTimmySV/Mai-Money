@@ -1407,3 +1407,57 @@ body.dark-mode {
     --text-color: #ffffff; /* Texto claro */
     --primary-color: #4caf50; /* Color principal */
 }
+
+/* Estilos base para Wear OS */
+.wear-os {
+    font-size: 12px; /* Tamaño de fuente más pequeño */
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Ajustes para la pantalla circular */
+  @media screen and (max-width: 200px) and (max-height: 200px) {
+    .wear-os {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+  
+    .wear-os .container {
+      padding: 10px;
+    }
+  
+    .wear-os h1 {
+      font-size: 14px;
+    }
+  
+    .wear-os .summary {
+      flex-direction: column;
+    }
+  
+    .wear-os .balance, .wear-os .income, .wear-os .expense {
+      margin: 5px 0;
+      padding: 5px;
+    }
+  
+    .wear-os .transaction-list {
+      max-height: 100px;
+      overflow-y: auto;
+    }
+  
+    .wear-os .float-btn {
+      width: 30px;
+      height: 30px;
+      font-size: 14px;
+      bottom: 10px;
+      right: 10px;
+    }
+  
+    /* Ocultar elementos no esenciales */
+    .wear-os #statsView,
+    .wear-os #calendarView,
+    .wear-os #creditCardView {
+      display: none;
+    }
+  }
