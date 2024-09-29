@@ -37,7 +37,16 @@ cancelEditBtn.addEventListener('click', closeEditModal);
 addTransactionForm.addEventListener('submit', handleAddTransaction);
 editTransactionForm.addEventListener('submit', handleEditTransaction);
 
-
+function isWearOS() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    return userAgent.includes('wear os') || userAgent.includes('tizen') || userAgent.includes('galaxy watch');
+  }
+  
+  // Usar la función
+  if (isWearOS()) {
+    document.body.classList.add('wear-os');
+    // Aquí puedes añadir más lógica específica para Wear OS
+  }
 
 // Funciones de carga y guardado
 function loadTransactions() {
