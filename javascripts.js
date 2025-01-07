@@ -614,76 +614,100 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentDate = new Date();
 
-    function initializeCalendar() {
+// Calendar navigation functions
+function initializeCalendar() {
+    updateCalendarHeader();
+    renderCalendar();
+    
+    // Remove existing event listeners if any
+    const prevBtn = document.getElementById('prevMonth');
+    const nextBtn = document.getElementById('nextMonth');
+    prevBtn.replaceWith(prevBtn.cloneNode(true));
+    nextBtn.replaceWith(nextBtn.cloneNode(true));
+    
+    // Add new event listeners
+    document.getElementById('prevMonth').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
         updateCalendarHeader();
         renderCalendar();
-        
-        document.getElementById('prevMonth').addEventListener('click', () => {
-          currentDate.setMonth(currentDate.getMonth() - 1);
-          renderCalendar();
-        });
-        
-        document.getElementById('nextMonth').addEventListener('click', () => {
-          currentDate.setMonth(currentDate.getMonth() + 1);
-          renderCalendar();
-        });
-        
-        document.getElementById('closeDailySummary').addEventListener('click', () => {
-          document.getElementById('dailyTransactionsSummary').style.display = 'none';
-        });
-      }
+    });
+    
+    document.getElementById('nextMonth').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        updateCalendarHeader();
+        renderCalendar();
+    });
+}
 
-      function updateCalendarHeader() {
-        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ];
-        document.getElementById('currentMonthYear').textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-      }
+function updateCalendarHeader() {
+    const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+    const currentMonthYear = document.getElementById('currentMonthYear');
+    if (currentMonthYear) {
+        currentMonthYear.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+    }
+}
 
-      function renderCalendar() {
-        const calendarEl = document.getElementById('calendar');
-        calendarEl.innerHTML = '';
-        
-        const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-        
-        // Días de la semana abreviados
-        const daysOfWeek = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
-        
-        const calendarGreen = 'rgb(102, 187, 106)'; // Define el color verde constante
+function renderCalendar() {
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) return;
+    
+    calendarEl.innerHTML = '';
+    
+    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    
+    // Días de la semana abreviados
+    const daysOfWeek = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+    const calendarGreen = 'rgb(102, 187, 106)';
 
-        daysOfWeek.forEach(day => {
-          const dayHeader = document.createElement('div');
-          dayHeader.className = 'calendar-day-header';
-          dayHeader.textContent = day;
-          dayHeader.style.color = calendarGreen; // Usa el color verde constante
-          calendarEl.appendChild(dayHeader);
-        });
+    // Create header row
+    const headerRow = document.createElement('div');
+    headerRow.className = 'calendar-header-row';
+    daysOfWeek.forEach(day => {
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'calendar-day-header';
+        dayHeader.textContent = day;
+        dayHeader.style.color = calendarGreen;
+        headerRow.appendChild(dayHeader);
+    });
+    calendarEl.appendChild(headerRow);
+    
+    // Create calendar grid
+    const calendarGrid = document.createElement('div');
+    calendarGrid.className = 'calendar-grid';
+    
+    // Add empty cells for days before the first of the month
+    for (let i = 0; i < firstDay.getDay(); i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'calendar-day empty';
+        calendarGrid.appendChild(emptyCell);
+    }
+    
+    // Add cells for each day of the month
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day';
+        dayEl.innerHTML = `<span class="day-number">${i}</span>`;
         
-        for (let i = 0; i < firstDay.getDay(); i++) {
-          calendarEl.appendChild(document.createElement('div'));
-        }
-        
-        for (let i = 1; i <= lastDay.getDate(); i++) {
-          const dayEl = document.createElement('div');
-          dayEl.className = 'calendar-day';
-          dayEl.innerHTML = `<span class="day-number">${i}</span>`;
-          
-          const currentDayTransactions = getTransactionsForDay(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
-          if (currentDayTransactions.length > 0) {
+        const currentDayTransactions = getTransactionsForDay(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
+        if (currentDayTransactions.length > 0) {
             const summary = document.createElement('div');
             summary.className = 'transaction-summary';
             summary.textContent = `${currentDayTransactions.length}`;
             dayEl.appendChild(summary);
-          }
-          
-          dayEl.addEventListener('click', () => showDailyTransactions(new Date(currentDate.getFullYear(), currentDate.getMonth(), i)));
-          calendarEl.appendChild(dayEl);
         }
         
-        updateCalendarHeader();
+        dayEl.addEventListener('click', () => {
+            showDailyTransactions(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
+        });
         
-      }
+        calendarGrid.appendChild(dayEl);
+    }
+    
+    calendarEl.appendChild(calendarGrid);
+}
 
       function getTransactionsForDay(date) {
         return transactions.filter(t => {
