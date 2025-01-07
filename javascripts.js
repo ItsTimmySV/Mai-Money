@@ -6,7 +6,9 @@ let categoryChartInstance = null;
 let categories = ['Comida', 'Transporte', 'Entretenimiento', 'Servicios', 'Otros'];
 let calendarInstance = null;
 let archivedMonths = {};
-let isImporting = false; // Flag para evitar ejecuciones múltiples
+let isImporting = false;
+let currentDate = new Date(); // Una sola definición de currentDate
+const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']; // Una sola definición de monthNames
 
 
 
@@ -597,7 +599,25 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error("Element with id 'addCategoryForm' not found");
         }
 
-    const showCalendarBtn = document.getElementById('showCalendarBtn');
+        const showCalendarBtn = document.getElementById('showCalendarBtn');
+    if (showCalendarBtn) {
+        showCalendarBtn.addEventListener('click', function() {
+            transactionsView.style.display = 'none';
+            statsView.style.display = 'none';
+            document.getElementById('creditCardView').style.display = 'none';
+            
+            const calendarView = document.getElementById('calendarView');
+            calendarView.style.display = 'block';
+            
+            document.getElementById('showTransactionsBtn').classList.remove('active');
+            document.getElementById('showStatsBtn').classList.remove('active');
+            document.getElementById('showCreditCardBtn').classList.remove('active');
+            showCalendarBtn.classList.add('active');
+            
+            initializeCalendar();
+        });
+    }
+});
     const calendarView = document.getElementById('calendarView');
 
     showCalendarBtn.addEventListener('click', function() {
@@ -620,34 +640,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Calendar navigation functions
 function initializeCalendar() {
+    console.log('Initializing calendar...'); // Debug
     updateCalendarHeader();
     renderCalendar();
-    
-    // Eliminar listeners existentes para evitar duplicados
-    const prevBtn = document.getElementById('prevMonth');
-    const nextBtn = document.getElementById('nextMonth');
-    const newPrevBtn = prevBtn.cloneNode(true);
-    const newNextBtn = nextBtn.cloneNode(true);
-    prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
-    nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
-    
-    // Agregar nuevos listeners
-    newPrevBtn.addEventListener('click', () => {
-        currentDate.setMonth(currentDate.getMonth() - 1);
-        updateCalendarHeader();
-        renderCalendar();
-    });
-    
-    newNextBtn.addEventListener('click', () => {
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        updateCalendarHeader();
-        renderCalendar();
-    });
+    setupNavigationButtons();
 }
 
+    function setupNavigationButtons() {
+    const prevBtn = document.getElementById('prevMonth');
+    const nextBtn = document.getElementById('nextMonth');
+    
+    if (prevBtn && nextBtn) {
+        // Eliminar listeners anteriores
+        const newPrevBtn = prevBtn.cloneNode(true);
+        const newNextBtn = nextBtn.cloneNode(true);
+        
+        prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
+        nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
+        
+        // Agregar nuevos listeners
+        newPrevBtn.addEventListener('click', () => {
+            console.log('Previous month clicked');
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendarHeader();
+            renderCalendar();
+        });
+        
+        newNextBtn.addEventListener('click', () => {
+            console.log('Next month clicked');
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendarHeader();
+            renderCalendar();
+        });
+    }
+}
+
+    
 function updateCalendarHeader() {
-    const currentMonthYear = document.getElementById('currentMonthYear');
-    currentMonthYear.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+    const headerElement = document.getElementById('currentMonthYear');
+    if (headerElement) {
+        headerElement.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+        console.log('Calendar header updated:', headerElement.textContent);
+    }
 }
 
 function renderCalendar() {
@@ -659,7 +693,7 @@ function renderCalendar() {
     const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
     
-    // Crear encabezados de días
+    // Agregar encabezados de días
     const daysOfWeek = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
     daysOfWeek.forEach(day => {
         const dayHeader = document.createElement('div');
@@ -668,14 +702,14 @@ function renderCalendar() {
         calendarEl.appendChild(dayHeader);
     });
     
-    // Agregar celdas vacías para los días antes del primer día del mes
+    // Agregar días vacíos al inicio
     for (let i = 0; i < firstDay.getDay(); i++) {
         const emptyCell = document.createElement('div');
         emptyCell.className = 'calendar-day empty';
         calendarEl.appendChild(emptyCell);
     }
     
-    // Agregar los días del mes
+    // Agregar días del mes
     for (let i = 1; i <= lastDay.getDate(); i++) {
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
@@ -704,6 +738,8 @@ function renderCalendar() {
         
         calendarEl.appendChild(dayEl);
     }
+    
+    console.log('Calendar rendered');
 }
 
       function getTransactionsForDay(date) {
