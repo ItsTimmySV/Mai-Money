@@ -1461,3 +1461,45 @@ body.dark-mode {
       display: none;
     }
   }
+
+
+.calendar-header-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.calendar-day:hover {
+    background-color: rgba(102, 187, 106, 0.1);
+}
+
+.calendar-day.empty {
+    border: none;
+    cursor: default;
+}
+
+.transaction-summary {
+    font-size: 0.8em;
+    color: #66bb6a;
+    margin-top: 2px;
+}
