@@ -613,26 +613,32 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     let currentDate = new Date();
+    const monthNames = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+];
 
 // Calendar navigation functions
 function initializeCalendar() {
     updateCalendarHeader();
     renderCalendar();
     
-    // Remove existing event listeners if any
+    // Eliminar listeners existentes para evitar duplicados
     const prevBtn = document.getElementById('prevMonth');
     const nextBtn = document.getElementById('nextMonth');
-    prevBtn.replaceWith(prevBtn.cloneNode(true));
-    nextBtn.replaceWith(nextBtn.cloneNode(true));
+    const newPrevBtn = prevBtn.cloneNode(true);
+    const newNextBtn = nextBtn.cloneNode(true);
+    prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
+    nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
     
-    // Add new event listeners
-    document.getElementById('prevMonth').addEventListener('click', () => {
+    // Agregar nuevos listeners
+    newPrevBtn.addEventListener('click', () => {
         currentDate.setMonth(currentDate.getMonth() - 1);
         updateCalendarHeader();
         renderCalendar();
     });
     
-    document.getElementById('nextMonth').addEventListener('click', () => {
+    newNextBtn.addEventListener('click', () => {
         currentDate.setMonth(currentDate.getMonth() + 1);
         updateCalendarHeader();
         renderCalendar();
@@ -640,13 +646,8 @@ function initializeCalendar() {
 }
 
 function updateCalendarHeader() {
-    const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-    ];
     const currentMonthYear = document.getElementById('currentMonthYear');
-    if (currentMonthYear) {
-        currentMonthYear.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-    }
+    currentMonthYear.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 }
 
 function renderCalendar() {
@@ -658,40 +659,36 @@ function renderCalendar() {
     const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
     
-    // Días de la semana abreviados
+    // Crear encabezados de días
     const daysOfWeek = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
-    const calendarGreen = 'rgb(102, 187, 106)';
-
-    // Create header row
-    const headerRow = document.createElement('div');
-    headerRow.className = 'calendar-header-row';
     daysOfWeek.forEach(day => {
         const dayHeader = document.createElement('div');
         dayHeader.className = 'calendar-day-header';
         dayHeader.textContent = day;
-        dayHeader.style.color = calendarGreen;
-        headerRow.appendChild(dayHeader);
+        calendarEl.appendChild(dayHeader);
     });
-    calendarEl.appendChild(headerRow);
     
-    // Create calendar grid
-    const calendarGrid = document.createElement('div');
-    calendarGrid.className = 'calendar-grid';
-    
-    // Add empty cells for days before the first of the month
+    // Agregar celdas vacías para los días antes del primer día del mes
     for (let i = 0; i < firstDay.getDay(); i++) {
         const emptyCell = document.createElement('div');
         emptyCell.className = 'calendar-day empty';
-        calendarGrid.appendChild(emptyCell);
+        calendarEl.appendChild(emptyCell);
     }
     
-    // Add cells for each day of the month
+    // Agregar los días del mes
     for (let i = 1; i <= lastDay.getDate(); i++) {
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
-        dayEl.innerHTML = `<span class="day-number">${i}</span>`;
         
-        const currentDayTransactions = getTransactionsForDay(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
+        const dayNumber = document.createElement('span');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = i;
+        dayEl.appendChild(dayNumber);
+        
+        const currentDayTransactions = getTransactionsForDay(
+            new Date(currentDate.getFullYear(), currentDate.getMonth(), i)
+        );
+        
         if (currentDayTransactions.length > 0) {
             const summary = document.createElement('div');
             summary.className = 'transaction-summary';
@@ -700,13 +697,13 @@ function renderCalendar() {
         }
         
         dayEl.addEventListener('click', () => {
-            showDailyTransactions(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
+            showDailyTransactions(
+                new Date(currentDate.getFullYear(), currentDate.getMonth(), i)
+            );
         });
         
-        calendarGrid.appendChild(dayEl);
+        calendarEl.appendChild(dayEl);
     }
-    
-    calendarEl.appendChild(calendarGrid);
 }
 
       function getTransactionsForDay(date) {
